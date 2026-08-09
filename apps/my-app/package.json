@@ -1,5 +1,8 @@
 {
   "name": "my-app",
   "type": "module",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "utility": "workspace:*"
+  }
 }

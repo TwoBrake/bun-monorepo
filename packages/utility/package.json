@@ -1,0 +1,14 @@
+{
+  "name": "utility",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "default": "./index.ts",
+      "types": "./index.ts"
+    }
+  },
+  "dependencies": {
+    "consola": "^3.4.2"
+  }
+}

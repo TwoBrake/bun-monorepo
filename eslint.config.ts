@@ -20,7 +20,14 @@ const ESLINT_CONFIGURATION = tseslint.config(
       ...tseslint.configs.stylisticTypeChecked,
       eslintPluginImport.flatConfigs.recommended
     ],
-    languageOptions: { parserOptions: { projectService: true } }
+    languageOptions: { parserOptions: { projectService: true } },
+    settings: {
+      "import/resolver": {
+        typescript: {
+          project: "./tsconfig.json"
+        }
+      }
+    }
   },
   {
     ignores: GLOBAL_IGNORES,
