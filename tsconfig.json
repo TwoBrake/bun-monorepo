@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    // Environment setup & latest features
+    /* Environment & Features */
     "lib": ["ESNext"],
     "target": "ESNext",
     "module": "Preserve",
@@ -9,23 +9,26 @@
     "allowJs": true,
     "types": ["bun"],
 
-    // Bundler mode
+    /* Bundler Configuration */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
 
-    // Best practices
+    /* Strict TypeScript */
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
 
-    // Some stricter flags (disabled by default)
+    /* Stricter Flags */
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+
+    /* Custom Features */
+    "experimentalDecorators": true
   },
   "exclude": ["*.config.ts"]
 }
