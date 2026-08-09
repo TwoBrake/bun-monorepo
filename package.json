@@ -1,0 +1,49 @@
+{
+  "name": "ts-template",
+  "description": "My monorepo setup with Bun.",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "prepare": "husky",
+    "format": "bunx prettier . --write --ignore-unknown",
+    "lint": "bunx eslint . && bunx tsc --noEmit",
+    "stats": "bunx cloc . --exclude-dir=node_modules,out,types,include,.husky,.vscode,.idea,.forgejo,.codex,.agents,.git --match-f=\"[.]tsx?$\""
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": false,
+    "trailingComma": "none",
+    "arrowParens": "avoid",
+    "endOfLine": "lf",
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "printWidth": 120
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx}": "bunx eslint --fix --no-warn-ignored",
+    "src/**/*.{ts,tsx}": "bunx prettier --write --ignore-unknown"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@eslint/js": "^10.0.1",
+    "@types/bun": "latest",
+    "cloc": "^2.6.0-cloc",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsdoc": "^63.3.3",
+    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-unicorn": "^66.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
+    "prettier": "^3.9.6",
+    "typescript-eslint": "^8.66.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
