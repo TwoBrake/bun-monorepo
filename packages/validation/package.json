@@ -1,0 +1,11 @@
+{
+  "name": "@repo/validation",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "default": "./index.ts",
+      "types": "./index.ts"
+    }
+  }
+}
