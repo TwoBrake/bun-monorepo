@@ -2,6 +2,10 @@
   "name": "my-app",
   "type": "module",
   "private": true,
+  "scripts": {
+    "start": "bun index.ts",
+    "dev": "bun --watch index.ts"
+  },
   "dependencies": {
     "utility": "workspace:*"
   }

@@ -7,6 +7,8 @@
     "packages/*"
   ],
   "scripts": {
+    "app:start": "bun run --filter 'my-app' start",
+    "app:dev": "bun run --filter 'my-app' dev",
     "prepare": "husky",
     "format": "bunx prettier . --write --ignore-unknown",
     "lint": "bunx eslint . && bunx tsc --noEmit",
