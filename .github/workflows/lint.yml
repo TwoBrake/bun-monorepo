@@ -1,0 +1,68 @@
+name: "Lint & Typecheck"
+
+on:
+  push:
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "package.json"
+      - "bun.lock"
+      - "tsconfig.json"
+      - "eslint.config.*"
+      - ".github/workflows/lint.yml"
+  pull_request:
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "package.json"
+      - "bun.lock"
+      - "tsconfig.json"
+      - "eslint.config.*"
+      - ".github/workflows/lint.yml"
+
+jobs:
+  lint:
+    name: "Lint"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      # Checkout
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      # Initialize Bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # Install Dependencies
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      # ESLint
+      - name: Run Linting Framework
+        run: bunx eslint .
+
+  typecheck:
+    name: "Typecheck"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      # Checkout
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      # Initialize Bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # Install Dependencies
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      # Typechecking
+      - name: Run Typechecking
+        run: bunx tsc --noEmit
