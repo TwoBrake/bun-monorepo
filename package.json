@@ -7,8 +7,8 @@
     "packages/*"
   ],
   "scripts": {
-    "app:start": "bun run --filter 'my-app' start",
-    "app:dev": "bun run --filter 'my-app' dev",
+    "app:start": "bun --env-file=.env run --filter '@repo/my-app' start",
+    "app:dev": "bun --env-file=.env run --filter '@repo/my-app' dev",
     "prepare": "husky",
     "format": "bunx prettier . --write --ignore-unknown",
     "lint": "bunx eslint . && bunx tsc --noEmit",
@@ -48,5 +48,9 @@
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3"
   }
 }

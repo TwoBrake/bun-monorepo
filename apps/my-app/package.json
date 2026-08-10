@@ -3,8 +3,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun index.ts",
-    "dev": "bun --watch index.ts"
+    "start": "bun src/index.ts",
+    "dev": "bun --watch src/index.ts"
   },
   "dependencies": {
     "@repo/utility": "workspace:*",
