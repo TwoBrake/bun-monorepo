@@ -1,4 +1,4 @@
 // Resources
-import { logger } from "utility";
+import { logger } from "@repo/utility";
 
 logger.info("Hello world!");

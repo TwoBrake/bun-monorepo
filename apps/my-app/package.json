@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "@repo/my-app",
   "type": "module",
   "private": true,
   "scripts": {
@@ -7,6 +7,7 @@
     "dev": "bun --watch index.ts"
   },
   "dependencies": {
-    "utility": "workspace:*"
+    "@repo/utility": "workspace:*",
+    "@repo/config": "workspace:*"
   }
 }

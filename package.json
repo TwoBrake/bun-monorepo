@@ -1,5 +1,5 @@
 {
-  "name": "ts-template",
+  "name": "repo",
   "description": "My monorepo setup with Bun.",
   "type": "module",
   "workspaces": [
