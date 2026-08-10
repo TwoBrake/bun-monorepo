@@ -10,7 +10,7 @@ const configuration = {
 /** The repository's environment variables. */
 export const environment = createEnv({
   server: {
-    TEST_VARIABLE: z.string()
+    DATABASE_URL: z.string()
   },
 
   clientPrefix: "PUBLIC_",

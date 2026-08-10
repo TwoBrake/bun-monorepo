@@ -9,6 +9,9 @@
   "scripts": {
     "app:start": "bun --env-file=.env run --filter '@repo/my-app' start",
     "app:dev": "bun --env-file=.env run --filter '@repo/my-app' dev",
+    "db:push": "bun --env-file=.env run --filter @repo/database push",
+    "db:generate": "bun --env-file=.env run --filter @repo/database generate",
+    "db:migrate": "bun --env-file=.env run --filter @repo/database migrate",
     "prepare": "husky",
     "format": "bunx prettier . --write --ignore-unknown",
     "lint": "bunx eslint . && bunx tsc --noEmit",
