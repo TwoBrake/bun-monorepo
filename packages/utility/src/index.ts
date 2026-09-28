@@ -1,6 +1,6 @@
 // Resources
 import { type Logger, type LoggerConfig, configure, getConsoleSink, getLogger } from "@logtape/logtape";
-import configuration from "@repo/config";
+import configuration, { environment } from "@repo/config";
 
 /* Configure LogTape globally across the application. */
 await configure({
@@ -9,7 +9,7 @@ await configure({
       scope =>
         ({
           category: [scope],
-          lowestLevel: "debug",
+          lowestLevel: environment.NODE_ENV === "production" ? "info" : "debug",
           sinks: ["console"]
         }) satisfies LoggerConfig<string, string>
     ),

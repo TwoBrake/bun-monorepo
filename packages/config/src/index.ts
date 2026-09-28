@@ -19,7 +19,8 @@ export const environment = createEnv({
   runtimeEnv: process.env,
 
   server: {
-    DATABASE_URL: z.string()
+    DATABASE_URL: z.string(),
+    NODE_ENV: z.enum(["production", "development"]).optional().default("development")
   }
 });
 
