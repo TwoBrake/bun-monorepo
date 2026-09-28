@@ -9,6 +9,7 @@
     }
   },
   "dependencies": {
-    "consola": "^3.4.2"
+    "@logtape/logtape": "^2.3.9",
+    "@repo/config": "workspace:*"
   }
 }
