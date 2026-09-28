@@ -4,7 +4,7 @@ import { z } from "zod";
 
 /** The repository's base configuration. */
 const configuration = {
-  logScopes: ["my-app"],
+  logScopes: ["my-app", "web"],
   port: 3000
 } as const;
 

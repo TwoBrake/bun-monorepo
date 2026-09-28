@@ -18,9 +18,14 @@ const configuration = defineConfig({
   },
   rules: {
     "eslint/max-classes-per-file": "off",
+    "eslint/max-lines-per-function": "off",
     "eslint/one-var": "off",
+    "eslint/require-await": "off",
     "no-magic-numbers": "off",
-    "no-ternary": "off"
+    "no-ternary": "off",
+    "oxc/no-async-await": "off",
+    "typescript/promise-function-async": "error",
+    "typescript/return-await": "error"
   }
 });
 

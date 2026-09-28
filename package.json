@@ -9,6 +9,8 @@
   "scripts": {
     "app:start": "bun --env-file=.env run --filter '@repo/my-app' start",
     "app:dev": "bun --env-file=.env run --filter '@repo/my-app' dev",
+    "web:start": "bun --env-file=.env run --filter '@repo/web' start",
+    "web:dev": "bun --env-file=.env run --filter '@repo/web' dev",
     "db:push": "bun --env-file=.env run --filter @repo/database push",
     "db:generate": "bun --env-file=.env run --filter @repo/database generate",
     "db:migrate": "bun --env-file=.env run --filter @repo/database migrate",
