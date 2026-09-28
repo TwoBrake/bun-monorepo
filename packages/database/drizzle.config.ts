@@ -10,7 +10,7 @@ const configuration = defineConfig({
   },
   dialect: "postgresql",
   out: "./drizzle",
-  schema: "./schema.ts"
+  schema: "./src/schema.ts"
 });
 
 export default configuration;
