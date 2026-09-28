@@ -24,3 +24,16 @@ export class NotFoundError extends ApplicationError {
     this.name = "NotFoundError";
   }
 }
+
+/** An error representing something that went wrong internally, something that wasn't expected. */
+export class InternalError extends ApplicationError {
+  public readonly code = "INTERNAL_ERROR";
+
+  /**
+   * @param note A note for the error.
+   */
+  public constructor(note?: string) {
+    super(`Something went wrong internally: ${note ?? "N/A"}`);
+    this.name = "InternalError";
+  }
+}
