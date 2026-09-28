@@ -5,7 +5,7 @@ import { z } from "zod";
 /** The repository's base configuration. */
 const configuration = {
   port: 3000
-};
+} as const;
 
 /** The repository's environment variables. */
 export const environment = createEnv({
