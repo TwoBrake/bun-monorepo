@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { logger } from "../utility/utility";
 
-export const DefaultCatchBoundary = ({ error }: ErrorComponentProps): JSX.Element => {
+const DefaultCatchBoundary = ({ error }: ErrorComponentProps): JSX.Element => {
   const router = useRouter();
   const isRoot = useLocation({
     select: (location) => location.pathname === "/",
@@ -42,7 +42,7 @@ export const DefaultCatchBoundary = ({ error }: ErrorComponentProps): JSX.Elemen
             className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded-sm text-white uppercase font-extrabold`}
             onClick={(event) => {
               event.preventDefault();
-              globalThis.history.back();
+              window.history.back();
             }}
           >
             Go Back
@@ -52,3 +52,5 @@ export const DefaultCatchBoundary = ({ error }: ErrorComponentProps): JSX.Elemen
     </div>
   );
 };
+
+export default DefaultCatchBoundary;

@@ -3,10 +3,12 @@
 import { HeadContent, Link, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { JSX, ReactNode } from "react";
-import { DefaultCatchBoundary } from "~/components/default-catch-boundary";
-import { NotFound } from "~/components/not-found";
 import appCss from "~/styles/app.css?url";
 import { seo } from "~/utility/seo";
+
+// Components
+import DefaultCatchBoundary from "~/components/default-catch-boundary";
+import NotFound from "~/components/not-found";
 
 const RootDocument = ({ children }: { children: ReactNode }): JSX.Element => (
   <html>
@@ -70,12 +72,6 @@ export const Route = createRootRoute({
         description: `TanStack Start is a type-safe, client-first, full-stack React framework. `,
         title: "TanStack Start | Type-Safe, Client-First, Full-Stack React Framework",
       }),
-    ],
-    scripts: [
-      {
-        src: "/customScript.js",
-        type: "text/javascript",
-      },
     ],
   }),
   notFoundComponent: () => <NotFound />,

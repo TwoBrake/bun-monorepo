@@ -4,7 +4,8 @@ import type { JSX } from "react";
 // Components
 import { Link } from "@tanstack/react-router";
 
-export const NotFound = ({ children }: { children?: JSX.Element }): JSX.Element => (
+/** A page representing a state of a missing page. */
+const NotFound = ({ children }: { children?: JSX.Element }): JSX.Element => (
   <div className="space-y-2 p-2">
     <div className="text-gray-600 dark:text-gray-400">
       {children ?? <p>The page you are looking for does not exist.</p>}
@@ -12,7 +13,7 @@ export const NotFound = ({ children }: { children?: JSX.Element }): JSX.Element 
     <p className="flex items-center gap-2 flex-wrap">
       <button
         onClick={() => {
-          globalThis.history.back();
+          window.history.back();
         }}
         className="bg-emerald-500 text-white px-2 py-1 rounded-sm uppercase font-black text-sm"
       >
@@ -27,3 +28,5 @@ export const NotFound = ({ children }: { children?: JSX.Element }): JSX.Element 
     </p>
   </div>
 );
+
+export default NotFound;

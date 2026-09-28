@@ -11,6 +11,7 @@ const configuration = defineConfig({
     "typescript/no-floating-promises": "error",
     "typescript/prefer-readonly-parameter-types": "off",
     "typescript/strict-boolean-expressions": "off",
+    "unicorn/prefer-global-this": "off",
   },
 });
 
