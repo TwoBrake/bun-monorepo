@@ -20,6 +20,7 @@ export const environment = createEnv({
 
   server: {
     DATABASE_URL: z.string(),
+    FORCE_COLOR: z.number().optional().default(1),
     NODE_ENV: z.enum(["production", "development"]).optional().default("development")
   }
 });

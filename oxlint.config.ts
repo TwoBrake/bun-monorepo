@@ -19,6 +19,7 @@ const configuration = defineConfig({
   rules: {
     "eslint/max-classes-per-file": "off",
     "eslint/one-var": "off",
+    "no-magic-numbers": "off",
     "no-ternary": "off"
   }
 });

@@ -1,5 +1,12 @@
 // Resources
-import { type Logger, type LoggerConfig, configure, getConsoleSink, getLogger } from "@logtape/logtape";
+import {
+  type Logger,
+  type LoggerConfig,
+  ansiColorFormatter,
+  configure,
+  getConsoleSink,
+  getLogger
+} from "@logtape/logtape";
 import configuration, { environment } from "@repo/config";
 
 /* Configure LogTape globally across the application. */
@@ -20,7 +27,9 @@ await configure({
     }
   ],
   sinks: {
-    console: getConsoleSink()
+    console: getConsoleSink({
+      formatter: ansiColorFormatter
+    })
   }
 });
 
