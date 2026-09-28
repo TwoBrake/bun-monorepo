@@ -1,15 +1,14 @@
 {
   "name": "@repo/config",
-  "type": "module",
   "private": true,
+  "type": "module",
   "exports": {
     ".": {
-      "default": "./index.ts",
-      "types": "./index.ts"
+      "default": "./src/index.ts",
+      "types": "./src/index.ts"
     }
   },
   "dependencies": {
-    "@t3-oss/env-core": "^0.13.11",
-    "consola": "^3.4.2"
+    "@t3-oss/env-core": "^0.13.11"
   }
 }

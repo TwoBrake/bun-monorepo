@@ -1,14 +1,15 @@
 {
   "name": "@repo/utility",
-  "type": "module",
   "private": true,
+  "type": "module",
   "exports": {
     ".": {
-      "default": "./index.ts",
-      "types": "./index.ts"
+      "default": "./src/index.ts",
+      "types": "./src/index.ts"
     }
   },
   "dependencies": {
-    "consola": "^3.4.2"
+    "@logtape/logtape": "^2.3.9",
+    "@repo/config": "workspace:*"
   }
 }

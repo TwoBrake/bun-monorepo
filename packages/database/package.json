@@ -1,11 +1,11 @@
 {
   "name": "@repo/database",
-  "type": "module",
   "private": true,
+  "type": "module",
   "exports": {
     ".": {
-      "default": "./index.ts",
-      "types": "./index.ts"
+      "default": "./src/index.ts",
+      "types": "./src/index.ts"
     }
   },
   "scripts": {
@@ -14,9 +14,9 @@
     "migrate": "bunx drizzle-kit migrate"
   },
   "dependencies": {
+    "@repo/config": "workspace:*",
     "drizzle-orm": "^1.0.0-rc.4",
-    "pg": "^8.23.0",
-    "@repo/config": "workspace:*"
+    "pg": "^8.23.0"
   },
   "devDependencies": {
     "@types/pg": "^8.21.0",

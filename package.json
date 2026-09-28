@@ -1,11 +1,11 @@
 {
   "name": "repo",
   "description": "My monorepo setup with Bun.",
-  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "type": "module",
   "scripts": {
     "app:start": "bun --env-file=.env run --filter '@repo/my-app' start",
     "app:dev": "bun --env-file=.env run --filter '@repo/my-app' dev",
@@ -13,46 +13,29 @@
     "db:generate": "bun --env-file=.env run --filter @repo/database generate",
     "db:migrate": "bun --env-file=.env run --filter @repo/database migrate",
     "prepare": "husky",
-    "format": "bunx prettier . --write --ignore-unknown",
-    "lint": "bunx eslint . && bunx tsc --noEmit",
+    "format": "oxfmt .",
+    "lint": "oxlint .",
     "stats": "bunx cloc . --exclude-dir=node_modules,out,types,include,.husky,.vscode,.idea,.forgejo,.github,.codex,.agents,.git --match-f=\"[.]tsx?$\""
   },
-  "prettier": {
-    "semi": true,
-    "singleQuote": false,
-    "trailingComma": "none",
-    "arrowParens": "avoid",
-    "endOfLine": "lf",
-    "bracketSpacing": true,
-    "bracketSameLine": false,
-    "printWidth": 120
-  },
-  "lint-staged": {
-    "**/*.{ts,tsx}": "bunx eslint --fix --no-warn-ignored",
-    "src/**/*.{ts,tsx}": "bunx prettier --write --ignore-unknown"
+  "dependencies": {
+    "dotenv": "^18.0.4",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "typescript": "^6.0.2",
-    "@commitlint/cli": "^21.2.1",
-    "@commitlint/config-conventional": "^21.2.0",
-    "@eslint/js": "^10.0.1",
-    "@types/bun": "latest",
-    "@types/node": "^26.2.0",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "@types/bun": "^1.4.2",
+    "@types/node": "^26.6.3",
     "cloc": "^2.6.0-cloc",
-    "eslint": "^10.8.1",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-import-resolver-typescript": "^4.4.5",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-jsdoc": "^63.3.3",
-    "eslint-plugin-prettier": "^5.5.6",
-    "eslint-plugin-unicorn": "^66.0.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.3.0",
-    "prettier": "^3.9.6",
-    "typescript-eslint": "^8.67.0"
+    "lint-staged": "^17.6.0",
+    "oxfmt": "^0.70.0",
+    "oxlint": "^1.85.0",
+    "oxlint-tsgolint": "^7.0.2003",
+    "typescript": "^7.0.2"
   },
-  "dependencies": {
-    "dotenv": "^17.4.2",
-    "zod": "^4.4.3"
+  "lint-staged": {
+    "**/*.{ts,tsx}": "bun run lint",
+    "src/**/*.{ts,tsx}": "bun run format"
   }
 }
