@@ -1,6 +1,6 @@
 // Resources
 import { createEnv } from "@t3-oss/env-core";
-import z from "zod";
+import { z } from "zod";
 
 /** The repository's base configuration. */
 const configuration = {
@@ -9,17 +9,17 @@ const configuration = {
 
 /** The repository's environment variables. */
 export const environment = createEnv({
-  server: {
-    DATABASE_URL: z.string()
-  },
+  client: {},
 
   clientPrefix: "PUBLIC_",
 
-  client: {},
+  emptyStringAsUndefined: true,
 
   runtimeEnv: process.env,
 
-  emptyStringAsUndefined: true
+  server: {
+    DATABASE_URL: z.string()
+  }
 });
 
 export default configuration;

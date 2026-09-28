@@ -1,7 +1,7 @@
 {
   "name": "@repo/config",
-  "type": "module",
   "private": true,
+  "type": "module",
   "exports": {
     ".": {
       "default": "./index.ts",

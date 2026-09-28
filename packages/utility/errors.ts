@@ -6,9 +6,9 @@ abstract class ApplicationError extends Error {
   /**
    * @param message The message of the error.
    */
-  constructor(message: string) {
+  protected constructor(message: string) {
     super(message);
-    this.name = new.target.name;
+    this.name = "ApplicationError";
   }
 }
 
@@ -19,7 +19,8 @@ export class NotFoundError extends ApplicationError {
   /**
    * @param resource The resource/target that wasn't found.
    */
-  constructor(resource: string) {
+  public constructor(resource: string) {
     super(`${resource} was not found.`);
+    this.name = "NotFoundError";
   }
 }
