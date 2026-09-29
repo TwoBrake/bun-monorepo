@@ -9,29 +9,31 @@ import {
 } from "@logtape/logtape";
 import configuration, { environment } from "@repo/config";
 
-/* Configure LogTape globally across the application. */
-await configure({
-  loggers: [
-    ...configuration.logScopes.map(
-      scope =>
-        ({
-          category: [scope],
-          lowestLevel: environment.NODE_ENV === "production" ? "info" : "debug",
-          sinks: ["console"]
-        }) satisfies LoggerConfig<string, string>
-    ),
-    {
-      category: ["logtape", "meta"],
-      lowestLevel: "warning",
-      sinks: ["console"]
+/** Configure LogTape globally across the application. */
+export const configureServerLogger = async (): Promise<void> => {
+  await configure({
+    loggers: [
+      ...configuration.logScopes.map(
+        scope =>
+          ({
+            category: [scope],
+            lowestLevel: environment.NODE_ENV === "production" ? "info" : "debug",
+            sinks: ["console"]
+          }) satisfies LoggerConfig<string, string>
+      ),
+      {
+        category: ["logtape", "meta"],
+        lowestLevel: "warning",
+        sinks: ["console"]
+      }
+    ],
+    sinks: {
+      console: getConsoleSink({
+        formatter: ansiColorFormatter
+      })
     }
-  ],
-  sinks: {
-    console: getConsoleSink({
-      formatter: ansiColorFormatter
-    })
-  }
-});
+  });
+};
 
 /**
  * Constructs a new logger instance.
