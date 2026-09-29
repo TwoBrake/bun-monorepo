@@ -1,5 +1,5 @@
 // Resources
-import type { JSX } from "react";
+import React, { type JSX, useCallback, type MouseEventHandler } from "react";
 import {
   ErrorComponent,
   type ErrorComponentProps,
@@ -17,35 +17,40 @@ const DefaultCatchBoundary = ({ error }: ErrorComponentProps): JSX.Element => {
 
   logger.error(`DefaultCatchBoundary Error: ${String(error)}`);
 
+  const handleRetry = useCallback(() => {
+    void router.invalidate();
+  }, [router]);
+
+  const handleGoBack = useCallback<MouseEventHandler<HTMLAnchorElement>>((event) => {
+    event.preventDefault();
+    window.history.back();
+  }, []);
+
   return (
-    <div className="min-w-0 flex-1 p-4 flex flex-col items-center justify-center gap-6">
+    <div className={"min-w-0 flex-1 p-4 flex flex-col items-center justify-center gap-6"}>
       <ErrorComponent error={error} />
-      <div className="flex gap-2 items-center flex-wrap">
+      <div className={"flex gap-2 items-center flex-wrap"}>
         <button
-          onClick={() => {
-            void router.invalidate();
-          }}
+          type={"button"}
+          onClick={handleRetry}
           className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded-sm text-white uppercase font-extrabold`}
         >
-          Try Again
+          {"Try Again"}
         </button>
         {isRoot ? (
           <Link
-            to="/"
+            to={"/"}
             className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded-sm text-white uppercase font-extrabold`}
           >
-            Home
+            {"Home"}
           </Link>
         ) : (
           <Link
-            to="/"
+            to={"/"}
             className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded-sm text-white uppercase font-extrabold`}
-            onClick={(event) => {
-              event.preventDefault();
-              window.history.back();
-            }}
+            onClick={handleGoBack}
           >
-            Go Back
+            {"Go Back"}
           </Link>
         )}
       </div>

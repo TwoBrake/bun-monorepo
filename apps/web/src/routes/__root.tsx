@@ -2,7 +2,7 @@
 // Resources
 import { HeadContent, Link, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import type { JSX, ReactNode } from "react";
+import React, { type JSX, type ReactNode } from "react";
 import appCss from "~/styles/app.css?url";
 import { seo } from "~/utility/seo";
 
@@ -10,26 +10,27 @@ import { seo } from "~/utility/seo";
 import DefaultCatchBoundary from "~/components/default-catch-boundary";
 import NotFound from "~/components/not-found";
 
+// oxlint-disable-next-line react/only-export-components
 const RootDocument = ({ children }: { children: ReactNode }): JSX.Element => (
   <html>
     <head>
       <HeadContent />
     </head>
     <body>
-      <div className="p-2 flex gap-2 text-lg">
+      <div className={"p-2 flex gap-2 text-lg"}>
         <Link
-          to="/"
+          to={"/"}
           activeProps={{
             className: "font-bold",
           }}
           activeOptions={{ exact: true }}
         >
-          Home
+          {"Home"}
         </Link>
       </div>
       <hr />
       {children}
-      <TanStackRouterDevtools position="bottom-right" />
+      <TanStackRouterDevtools position={"bottom-right"} />
       <Scripts />
     </body>
   </html>
