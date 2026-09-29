@@ -3,12 +3,12 @@
 import { HeadContent, Link, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import React, { type JSX, type ReactNode } from "react";
-import appCss from "~/styles/app.css?url";
-import { seo } from "~/utility/seo";
+import appCss from "@/styles/app.css?url";
+import { seo } from "@/utility/seo";
 
 // Components
-import DefaultCatchBoundary from "~/components/default-catch-boundary";
-import NotFound from "~/components/not-found";
+import DefaultCatchBoundary from "@/components/default-catch-boundary";
+import NotFound from "@/components/not-found";
 
 // oxlint-disable-next-line react/only-export-components
 const RootDocument = ({ children }: { children: ReactNode }): JSX.Element => (
