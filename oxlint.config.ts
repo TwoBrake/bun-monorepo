@@ -14,7 +14,7 @@ const configuration = defineConfig({
   },
 
   /* Exclude build, etc. */
-  ignorePatterns: ["out/**", "dist/**", "node_modules", "build/**"],
+  ignorePatterns: ["**/out/**", "**/dist/**", "**/node_modules/**", "**/build/**"],
 
   /* Global Options */
   options: {

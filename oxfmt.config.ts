@@ -7,6 +7,7 @@ const configuration = defineConfig({
   bracketSameLine: false,
   bracketSpacing: true,
   endOfLine: "lf",
+  ignorePatterns: ["**/out/**", "**/dist/**", "**/node_modules/**", "**/build/**"],
   printWidth: 120,
   semi: true,
   singleQuote: false,
