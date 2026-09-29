@@ -65,4 +65,4 @@ jobs:
 
       # Typechecking
       - name: Run Typechecking
-        run: bunx tsc --noEmit
+        run: bun typecheck

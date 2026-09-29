@@ -1,14 +1,19 @@
 /// <reference types="vite/client" />
 // Resources
-import { HeadContent, Link, Scripts, createRootRoute } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Link,
+  Scripts,
+  createRootRoute,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { JSX, ReactNode } from "react";
 import appCss from "~/styles/app.css?url";
-import { seo } from "~/utility/seo";
+import { seo } from "@/utility/seo";
 
 // Components
-import DefaultCatchBoundary from "~/components/default-catch-boundary";
-import NotFound from "~/components/not-found";
+import DefaultCatchBoundary from "@/components/default-catch-boundary";
+import NotFound from "@/components/not-found";
 
 const RootDocument = ({ children }: { children: ReactNode }): JSX.Element => (
   <html>
@@ -22,8 +27,7 @@ const RootDocument = ({ children }: { children: ReactNode }): JSX.Element => (
           activeProps={{
             className: "font-bold",
           }}
-          activeOptions={{ exact: true }}
-        >
+          activeOptions={{ exact: true }}>
           Home
         </Link>
       </div>
@@ -70,7 +74,8 @@ export const Route = createRootRoute({
       },
       ...seo({
         description: `TanStack Start is a type-safe, client-first, full-stack React framework. `,
-        title: "TanStack Start | Type-Safe, Client-First, Full-Stack React Framework",
+        title:
+          "TanStack Start | Type-Safe, Client-First, Full-Stack React Framework",
       }),
     ],
   }),
