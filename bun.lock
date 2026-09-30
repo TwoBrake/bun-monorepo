@@ -25,7 +25,6 @@
     "apps/my-app": {
       "name": "@repo/my-app",
       "dependencies": {
-        "@repo/config": "workspace:*",
         "@repo/utility": "workspace:*",
       },
     },
@@ -33,6 +32,7 @@
       "name": "@repo/web",
       "dependencies": {
         "@headlessui/react": "^2.2.10",
+        "@repo/config": "workspace:*",
         "@repo/utility": "workspace:*",
         "@tanstack/react-router": "^1.170.40",
         "@tanstack/react-router-devtools": "^1.167.2",

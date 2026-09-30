@@ -1,5 +1,6 @@
 // Resources
 import { defineConfig } from "vite";
+import appConfiguration from "@repo/config";
 
 // Plugins
 import { nitro } from "nitro/vite";
@@ -21,7 +22,7 @@ const configuration = defineConfig({
     tsconfigPaths: true,
   },
   server: {
-    port: 3000,
+    port: appConfiguration.webPort,
   },
 });
 

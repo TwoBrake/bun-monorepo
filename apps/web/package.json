@@ -13,6 +13,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.10",
     "@repo/utility": "workspace:*",
+    "@repo/config": "workspace:*",
     "@tanstack/react-router": "^1.170.40",
     "@tanstack/react-router-devtools": "^1.167.2",
     "@tanstack/react-start": "^1.168.59",
