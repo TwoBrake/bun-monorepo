@@ -2,16 +2,18 @@
 // Resources
 import { HeadContent, Link, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import React, { type JSX, type ReactNode } from "react";
+import React, { type JSX } from "react";
 import appCss from "@/styles/app.css?url";
 import { seo } from "@/utility/seo";
+import type { Children } from "@repo/utility";
 
 // Components
 import DefaultCatchBoundary from "@/components/default-catch-boundary";
 import NotFound from "@/components/not-found";
 
 // oxlint-disable-next-line react/only-export-components
-const RootDocument = ({ children }: { children: ReactNode }): JSX.Element => (
+/** The root document to render content inside. */
+const RootDocument = ({ children }: Children): JSX.Element => (
   <html>
     <head>
       <HeadContent />
@@ -36,6 +38,7 @@ const RootDocument = ({ children }: { children: ReactNode }): JSX.Element => (
   </html>
 );
 
+/** The root route of teh application. */
 export const Route = createRootRoute({
   errorComponent: DefaultCatchBoundary,
   head: () => ({
@@ -70,8 +73,8 @@ export const Route = createRootRoute({
         name: "viewport",
       },
       ...seo({
-        description: `TanStack Start is a type-safe, client-first, full-stack React framework. `,
-        title: "TanStack Start | Type-Safe, Client-First, Full-Stack React Framework",
+        description: `A simple monorepo template built on the Bun ecosystem.`,
+        title: "Bun Monorepo",
       }),
     ],
   }),

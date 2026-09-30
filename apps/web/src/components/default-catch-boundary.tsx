@@ -7,7 +7,7 @@ import {
   useLocation,
   useRouter,
 } from "@tanstack/react-router";
-import { logger } from "../utility/utility";
+import { logger } from "../utility/general.ts";
 
 const DefaultCatchBoundary = ({ error }: ErrorComponentProps): JSX.Element => {
   const router = useRouter();

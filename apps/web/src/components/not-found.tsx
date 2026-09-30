@@ -1,11 +1,12 @@
 // Resources
-import React, { type JSX, useCallback } from "react";
+import React, { type JSX, type ReactNode, useCallback } from "react";
+import type { Children } from "@repo/utility";
 
 // Components
 import { Link } from "@tanstack/react-router";
 
 /** A page representing a state of a missing page. */
-const NotFound = ({ children }: { children?: JSX.Element }): JSX.Element => {
+const NotFound = ({ children }: Children<ReactNode, true>): JSX.Element => {
   const handleGoBack = useCallback(() => {
     window.history.back();
   }, []);
