@@ -2,7 +2,7 @@
 // Resources
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import React, { type JSX } from "react";
+import type { JSX } from "react";
 import appCss from "@/styles/app.css?url";
 import { seo } from "@/utility/seo";
 import type { Children } from "@repo/utility";

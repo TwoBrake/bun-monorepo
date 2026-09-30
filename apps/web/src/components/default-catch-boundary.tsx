@@ -1,5 +1,5 @@
 // Resources
-import React, { type JSX, useCallback, type MouseEventHandler } from "react";
+import { type JSX, useCallback, type MouseEventHandler } from "react";
 import {
   ErrorComponent,
   type ErrorComponentProps,

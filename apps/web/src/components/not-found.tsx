@@ -1,5 +1,5 @@
 // Resources
-import React, { type JSX, type ReactNode, useCallback } from "react";
+import { type JSX, type ReactNode, useCallback } from "react";
 import type { Children } from "@repo/utility";
 
 // Components

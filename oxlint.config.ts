@@ -45,7 +45,8 @@ const configuration = defineConfig({
         "react/jsx-filename-extension": "off",
         "react/jsx-max-depth": "off",
         "react/jsx-props-no-spreading": "off",
-        "react/only-export-components": "off"
+        "react/only-export-components": "off",
+        "react/react-in-jsx-scope": "off"
       }
     }
   ],
@@ -58,6 +59,7 @@ const configuration = defineConfig({
     "eslint/require-await": "off",
     "no-magic-numbers": "off",
     "no-ternary": "off",
+    "no-unused-vars": "error",
     "oxc/no-async-await": "off",
     "oxc/no-rest-spread-properties": "off",
     "typescript/promise-function-async": "error",

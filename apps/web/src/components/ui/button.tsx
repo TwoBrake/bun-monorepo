@@ -3,7 +3,7 @@ import {
   Button as HeadlessButton,
   type ButtonProps as HeadlessButtonProps,
 } from "@headlessui/react";
-import React, { type ElementType, type JSX } from "react";
+import type { ElementType, JSX } from "react";
 import { cn } from "@/utility/general";
 import type { ClassName } from "@repo/utility";
 
