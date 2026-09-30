@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 // Resources
-import { HeadContent, Link, Scripts, createRootRoute } from "@tanstack/react-router";
+import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import React, { type JSX } from "react";
 import appCss from "@/styles/app.css?url";
@@ -19,18 +19,6 @@ const RootDocument = ({ children }: Children): JSX.Element => (
       <HeadContent />
     </head>
     <body>
-      <div className={"p-2 flex gap-2 text-lg"}>
-        <Link
-          to={"/"}
-          activeProps={{
-            className: "font-bold",
-          }}
-          activeOptions={{ exact: true }}
-        >
-          {"Home"}
-        </Link>
-      </div>
-      <hr />
       {children}
       <TanStackRouterDevtools position={"bottom-right"} />
       <Scripts />
