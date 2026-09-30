@@ -9,3 +9,8 @@ export type Children<TType = ReactNode, TOptional extends boolean = false> = TOp
   : {
       children: TType;
     };
+
+/** The class name attribute of a component. */
+export type ClassName<TOptional extends boolean = true> = TOptional extends true
+  ? { className?: string }
+  : { className: string };

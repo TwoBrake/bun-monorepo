@@ -2,10 +2,15 @@
 import React, { type JSX } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
+// Components
+import Button from "@/components/ui/button";
+
 /** The page that is mounted at the root. */
 const Home = (): JSX.Element => (
-  <div className={"p-2"}>
-    <h3>{"This is the root route."}</h3>
+  <div className={"w-full h-screen mx-auto flex justify-center items-center"}>
+    <Button as={"a"} href={"https://github.com/twobrake/bun-monorepo"} target={"_blank"}>
+      {"View GitHub"}
+    </Button>
   </div>
 );
 

@@ -44,6 +44,7 @@ const configuration = defineConfig({
         "react/jsx-curly-brace-presence": ["error", "always"],
         "react/jsx-filename-extension": "off",
         "react/jsx-max-depth": "off",
+        "react/jsx-props-no-spreading": "off",
         "react/only-export-components": "off"
       }
     }
@@ -58,6 +59,7 @@ const configuration = defineConfig({
     "no-magic-numbers": "off",
     "no-ternary": "off",
     "oxc/no-async-await": "off",
+    "oxc/no-rest-spread-properties": "off",
     "typescript/promise-function-async": "error",
     "typescript/return-await": "error"
   }
