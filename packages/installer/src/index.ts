@@ -8,6 +8,7 @@ import {
   spinner,
   text,
 } from "@clack/prompts";
+import { readFile, writeFile } from "node:fs/promises";
 import { ActionAbortedError } from "@repo/utility/errors";
 import type { PackageJson as Package } from "type-fest";
 import { downloadTemplate } from "giget";
@@ -131,9 +132,12 @@ const main = async (): Promise<void> => {
     pulling.stop("Installed template from GitHub.");
 
     /* Ensure we have proper package. */
-    const clonedPackage = (await Bun.file(
+    const clonedPackageContents = await readFile(
       `${clonedDirectory}/package.json`,
-    ).json()) as unknown;
+      "utf8",
+    );
+
+    const clonedPackage = JSON.parse(clonedPackageContents) as unknown;
     if (!isValidPackage(clonedPackage)) {
       log.error("Invalid package.");
 
@@ -155,13 +159,13 @@ const main = async (): Promise<void> => {
     clonedPackage.name = String(projectName);
 
     /* Update cloned file. */
-    await Bun.write(
+    await writeFile(
       `${clonedDirectory}/package.json`,
       JSON.stringify(clonedPackage, undefined, 2),
     );
     log.info("Successfully applied configured options.");
 
-    outro(`You're project was successfully created at: ${clonedDirectory}`);
+    outro(`Your project was successfully created at: ${clonedDirectory}`);
   } catch (error: unknown) {
     if (error instanceof ActionAbortedError) {
       log.error("Installation was aborted.");

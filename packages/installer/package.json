@@ -1,11 +1,35 @@
 {
   "name": "@twobrake/monorepo-installer",
-  "private": true,
+  "description": "The installer for an opinionated monorepo starter for TypeScript built on the Bun ecosystem.",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "test-install": "bun run src/index.ts",
     "build": "tsdown",
-    "build:watch": "tsdown --watch"
+    "build:watch": "tsdown --watch",
+    "prepublishOnly": "bun run build"
+  },
+  "bin": {
+    "monorepo-installer": "./dist/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "monorepo",
+    "typescript",
+    "oxlint",
+    "oxfmt",
+    "bun",
+    "installer",
+    "template"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@clack/prompts": "^1.8.1",
