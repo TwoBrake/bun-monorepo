@@ -8,6 +8,7 @@
     "forgejo",
     "giget",
     "logtape",
-    "pcss"
+    "pcss",
+    "tsgolint"
   ]
 }

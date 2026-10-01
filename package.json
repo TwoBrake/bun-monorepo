@@ -1,6 +1,9 @@
 {
   "name": "repo",
-  "description": "My monorepo setup with Bun.",
+  "description": "An opinionated starter template for TypeScript using the Bun ecosystem.",
+  "author": {
+    "name": "Lucas Stranks"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
