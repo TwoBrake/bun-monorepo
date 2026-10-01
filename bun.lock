@@ -78,6 +78,7 @@
       "name": "@twobrake/monorepo-installer",
       "dependencies": {
         "@clack/prompts": "^1.8.1",
+        "@repo/utility": "workspace:*",
         "giget": "^3.3.1",
       },
       "devDependencies": {

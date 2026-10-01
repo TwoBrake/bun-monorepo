@@ -8,6 +8,7 @@ import {
   spinner,
   text,
 } from "@clack/prompts";
+import { ActionAbortedError } from "@repo/utility/errors";
 import type { PackageJson as Package } from "type-fest";
 import { downloadTemplate } from "giget";
 
@@ -51,7 +52,7 @@ const createPrompt = async <TPrompt>(
   const result = await prompt();
 
   if (isCancelled(result)) {
-    throw new Error("Prompt aborted.");
+    throw new ActionAbortedError("PROMPT");
   }
 
   return result;
@@ -66,10 +67,47 @@ const main = async (): Promise<void> => {
     const authorName = await createPrompt(async () =>
       text({
         message: "What is your name?",
+        placeholder: "Lucas Stranks",
         validate: (name) =>
           name !== undefined && name.length < 3
             ? "Must be at least 3 characters long."
             : undefined,
+      }),
+    );
+
+    const authorEmail = await createPrompt(async () =>
+      text({
+        message: "What is your email address?",
+        placeholder: "name@domain.com",
+        validate: (email) =>
+          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/u.test(
+            String(email),
+          )
+            ? undefined
+            : "Not a valid email address.",
+      }),
+    );
+
+    const projectName = await createPrompt(async () =>
+      text({
+        message: "What would you like to call your project?",
+        placeholder: "cool-project",
+        validate: (name) => {
+          if (name === undefined || name.length < 3) {
+            return "The name must be at least 3 characters long.";
+          }
+
+          if (name !== name.toLowerCase()) {
+            return "The name must be all lower case.";
+          }
+
+          if (name.includes(" ")) {
+            return "The name must not have any whitespace.";
+          }
+
+          // oxlint-disable-next-line unicorn/no-useless-undefined
+          return undefined;
+        },
       }),
     );
 
@@ -92,8 +130,6 @@ const main = async (): Promise<void> => {
     );
     pulling.stop("Installed template from GitHub.");
 
-    log.warn(clonedDirectory);
-
     /* Ensure we have proper package. */
     const clonedPackage = (await Bun.file(
       `${clonedDirectory}/package.json`,
@@ -107,12 +143,32 @@ const main = async (): Promise<void> => {
 
     /* Assign default package configuration. */
     Object.assign(clonedPackage, DEFAULT_PACKAGE);
+    log.info("Successfully applied default options.");
 
-    log.info(clonedPackage.name ?? "N/A");
+    /* Assign author information. */
+    clonedPackage.author = {
+      email: String(authorEmail),
+      name: String(authorName),
+    };
 
-    outro(`We're all done here, ${String(authorName)}!`);
-  } catch {
-    log.error("Something went wrong, please try again.");
+    /* Assign project name. */
+    clonedPackage.name = String(projectName);
+
+    /* Update cloned file. */
+    await Bun.write(
+      `${clonedDirectory}/package.json`,
+      JSON.stringify(clonedPackage, undefined, 2),
+    );
+    log.info("Successfully applied configured options.");
+
+    outro(`You're project was successfully created at: ${clonedDirectory}`);
+  } catch (error: unknown) {
+    if (error instanceof ActionAbortedError) {
+      log.error("Installation was aborted.");
+    } else {
+      log.error("Something went wrong, please try again.");
+    }
+
     process.exitCode = 1;
   }
 };

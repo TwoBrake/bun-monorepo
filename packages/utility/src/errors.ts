@@ -37,3 +37,16 @@ export class InternalError extends ApplicationError {
     this.name = "InternalError";
   }
 }
+
+/** An error representing an action that was aborted by the user. */
+export class ActionAbortedError extends ApplicationError {
+  public readonly code = "ACTION_ABORTED";
+
+  /**
+   * @param action The action that was aborted.
+   */
+  public constructor(action: string) {
+    super(`Action aborted: ${action}`);
+    this.name = "ActionAbortedError";
+  }
+}
