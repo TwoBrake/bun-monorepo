@@ -1,5 +1,13 @@
 // Resources
-import { intro, isCancel, log, outro, spinner, text } from "@clack/prompts";
+import {
+  intro,
+  isCancel,
+  log,
+  outro,
+  path,
+  spinner,
+  text,
+} from "@clack/prompts";
 import type { PackageJson as Package } from "type-fest";
 import { downloadTemplate } from "giget";
 
@@ -65,13 +73,21 @@ const main = async (): Promise<void> => {
       }),
     );
 
+    /* Ask the user the path to set the project up at. */
+    const targetDirectory = await createPrompt(async () =>
+      path({
+        directory: true,
+        message: "Where do you want to create this project at?",
+      }),
+    );
+
     const pulling = spinner();
     pulling.start("Installing template from GitHub.");
 
     const { dir: clonedDirectory } = await downloadTemplate(
       `gh:${PACKAGE_NAME}`,
       {
-        dir: "../../.tmp/cloned-template",
+        dir: String(targetDirectory),
       },
     );
     pulling.stop("Installed template from GitHub.");
