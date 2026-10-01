@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "initialize": "bun run src/index.ts"
+    "test-install": "bun run src/index.ts",
+    "build": "tsdown",
+    "build:watch": "tsdown --watch"
   },
   "dependencies": {
     "@clack/prompts": "^1.8.1",
@@ -11,6 +13,7 @@
     "@repo/utility": "workspace:*"
   },
   "devDependencies": {
+    "tsdown": "^0.23.0",
     "type-fest": "^5.10.0"
   }
 }
