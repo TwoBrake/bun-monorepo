@@ -10,16 +10,21 @@ const configuration = defineConfig({
     perf: "error",
     restriction: "error",
     style: "error",
-    suspicious: "error"
+    suspicious: "error",
   },
 
   /* Exclude build, etc. */
-  ignorePatterns: ["**/out/**", "**/dist/**", "**/node_modules/**", "**/build/**"],
+  ignorePatterns: [
+    "**/out/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/build/**",
+  ],
 
   /* Global Options */
   options: {
     typeAware: true,
-    typeCheck: true
+    typeCheck: true,
   },
 
   overrides: [
@@ -29,8 +34,8 @@ const configuration = defineConfig({
       plugins: ["jsdoc"],
       rules: {
         "jsdoc/require-param-type": "off",
-        "jsdoc/require-returns-type": "off"
-      }
+        "jsdoc/require-returns-type": "off",
+      },
     },
     /* React */
     {
@@ -46,9 +51,9 @@ const configuration = defineConfig({
         "react/jsx-max-depth": "off",
         "react/jsx-props-no-spreading": "off",
         "react/only-export-components": "off",
-        "react/react-in-jsx-scope": "off"
-      }
-    }
+        "react/react-in-jsx-scope": "off",
+      },
+    },
   ],
 
   /* Global Rules */
@@ -56,6 +61,7 @@ const configuration = defineConfig({
     "eslint/max-classes-per-file": "off",
     "eslint/max-lines-per-function": "off",
     "eslint/max-statements": "off",
+    "eslint/no-undefined": "off",
     "eslint/one-var": "off",
     "eslint/require-await": "off",
     "no-magic-numbers": "off",
@@ -64,8 +70,9 @@ const configuration = defineConfig({
     "oxc/no-async-await": "off",
     "oxc/no-rest-spread-properties": "off",
     "typescript/promise-function-async": "error",
-    "typescript/return-await": "error"
-  }
+    "typescript/return-await": "error",
+    "unicorn/no-null": "error",
+  },
 });
 
 export default configuration;
