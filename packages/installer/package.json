@@ -1,5 +1,5 @@
 {
-  "name": "@repo/installer",
+  "name": "@twobrake/monorepo-installer",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,6 +10,6 @@
     "giget": "^3.3.1"
   },
   "devDependencies": {
-    "@repo/utility": "workspace:*"
+    "type-fest": "^5.10.0"
   }
 }

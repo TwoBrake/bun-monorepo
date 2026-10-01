@@ -1,6 +1,15 @@
 // Resources
-import { intro, log, outro, text } from "@clack/prompts";
-import type { Package } from "@repo/utility";
+import { intro, log, outro, spinner, text } from "@clack/prompts";
+import type { PackageJson as Package } from "type-fest";
+import { downloadTemplate } from "giget";
+
+/** The default package configuration to use for the cloned template. */
+const DEFAULT_PACKAGE: Partial<Package> = {
+  version: "0.0.1"
+};
+
+/** The package name and scope to be cloned to the user's file system. */
+const PACKAGE_NAME = "TwoBrake/bun-monorepo";
 
 /**
  * Ensures the provided value is a proper package.
@@ -17,20 +26,34 @@ const main = async (): Promise<void> => {
   try {
     intro("bun-monorepo");
 
+    /* Ask the user for their name. */
+    const authorName = await text({ message: "What is your name?" });
+
+    const pulling = spinner();
+    pulling.start("Installing template from GitHub.");
+
+    const { dir: clonedDirectory } = await downloadTemplate(`gh:${PACKAGE_NAME}`, {
+      dir: "../../.tmp/cloned-template"
+    });
+    pulling.stop("Installed template from GitHub.");
+
+    log.warn(clonedDirectory);
+
     /* Ensure we have proper package. */
-    const rootPackage = (await Bun.file("package.json").json()) as unknown;
-    if (!isValidPackage(rootPackage)) {
+    const clonedPackage = (await Bun.file(`${clonedDirectory}/package.json`).json()) as unknown;
+    if (!isValidPackage(clonedPackage)) {
       log.error("Invalid package.");
 
       process.exitCode = 1;
       return;
     }
 
-    log.info(rootPackage.name);
+    /* Assign default package configuration. */
+    Object.assign(clonedPackage, DEFAULT_PACKAGE);
 
-    const name = await text({ message: "What is your name?" });
+    log.info(clonedPackage.name ?? "N/A");
 
-    outro(`We're all done here, ${String(name)}!`);
+    outro(`We're all done here, ${String(authorName)}!`);
   } catch {
     log.error("Something went wrong, please try again.");
     process.exitCode = 1;
