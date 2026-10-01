@@ -1,0 +1,15 @@
+{
+  "name": "@repo/installer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "initialize": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.8.1",
+    "giget": "^3.3.1"
+  },
+  "devDependencies": {
+    "@repo/utility": "workspace:*"
+  }
+}

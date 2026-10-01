@@ -14,3 +14,9 @@ export type Children<TType = ReactNode, TOptional extends boolean = false> = TOp
 export type ClassName<TOptional extends boolean = true> = TOptional extends true
   ? { className?: string }
   : { className: string };
+
+/** The structure of a Node.js package. */
+export interface Package {
+  name: string;
+  version: string;
+}

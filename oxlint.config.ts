@@ -55,6 +55,7 @@ const configuration = defineConfig({
   rules: {
     "eslint/max-classes-per-file": "off",
     "eslint/max-lines-per-function": "off",
+    "eslint/max-statements": "off",
     "eslint/one-var": "off",
     "eslint/require-await": "off",
     "no-magic-numbers": "off",
