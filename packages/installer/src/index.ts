@@ -8,7 +8,8 @@ import {
   type RootPackageScript,
   createPrompt,
   execute,
-  isValidPackage
+  isValidPackage,
+  replaceOccurrences
 } from "./lib";
 import { confirm, intro, log, outro, path, select, spinner, text } from "@clack/prompts";
 import { readFile, writeFile } from "node:fs/promises";
@@ -137,6 +138,22 @@ const main = async (): Promise<void> => {
     /* Update cloned file. */
     await writeFile(`${clonedDirectory}/package.json`, JSON.stringify(clonedPackage, undefined, 2));
     log.info("Successfully applied configured options.");
+
+    /* Update imported dependencies. */
+    await replaceOccurrences({
+      cwd: clonedDirectory,
+      extensions: ["ts", "tsx", "json"],
+      queries: [
+        {
+          query: `"@repo/`,
+          replaceWith: `"@${projectName}/`
+        },
+        {
+          query: "'@repo/",
+          replaceWith: `'@${projectName}/`
+        }
+      ]
+    });
 
     /* If the user decided they wanted the dependencies to be installed, install them. */
     if (shouldInstallDependencies) {

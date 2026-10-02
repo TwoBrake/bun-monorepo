@@ -55,19 +55,22 @@ export const IGNORE_PATH_LIST: string[] = ["packages/installer", "README.md"];
 export const replaceOccurrences = async (data: Readonly<ReplaceOccurrencesParameters>): Promise<void> => {
   const { cwd, extensions, queries } = data;
   const directory = await readdir(cwd, { withFileTypes: true });
-  const files = directory.filter((file: Readonly<Dirent>) =>
-    extensions.some(extension => file.name.endsWith(`.${extension}`))
-  );
 
   await Promise.all(
-    files.map(async (file: Readonly<Dirent>) => {
+    directory.map(async (file: Readonly<Dirent>) => {
       const filePath = path.join(cwd, file.name);
 
       if (file.isDirectory()) {
+        await replaceOccurrences({
+          cwd: filePath,
+          extensions,
+          queries
+        });
+
         return;
       }
 
-      if (!extensions.includes(path.extname(file.name))) {
+      if (!extensions.includes(path.extname(file.name).slice(1))) {
         return;
       }
 
