@@ -1,14 +1,4 @@
 {
   "js/ts.experimental.useTsgo": true,
-  "cSpell.words": [
-    "bunx",
-    "cloc",
-    "commitlint",
-    "currentcolor",
-    "forgejo",
-    "giget",
-    "logtape",
-    "pcss",
-    "tsgolint"
-  ]
+  "cSpell.words": ["bunx", "cloc", "commitlint", "currentcolor", "forgejo", "giget", "logtape", "pcss", "tsgolint"]
 }
