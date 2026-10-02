@@ -6,6 +6,10 @@ import type { PackageJson as Package } from "type-fest";
 import { downloadTemplate } from "giget";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
+import type rootPackage from "../../../package.json";
+
+/** Scripts that are configured in the root package. */
+type RootPackageScript = keyof (typeof rootPackage)["scripts"];
 
 /** The default package configuration to use for the cloned template. */
 const DEFAULT_PACKAGE: Partial<Package> = {
@@ -21,6 +25,8 @@ const DEFAULT_INSTALL_COMMANDS = {
   npm: "npm install",
   pnpm: "pnpm install"
 } as const;
+
+const EXCLUDED_PACKAGE_SCRIPTS = new Set<RootPackageScript>(["installer:build"]);
 
 /** The execution API wrapper that allows asynchronous usage. */
 // oxlint-disable-next-line typescript/strict-void-return
@@ -167,6 +173,15 @@ const main = async (): Promise<void> => {
 
     /* Assign project name. */
     clonedPackage.name = String(projectName);
+
+    if (clonedPackage.scripts) {
+      clonedPackage.scripts = Object.fromEntries(
+        Object.entries(clonedPackage.scripts).filter(
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion typescript/prefer-readonly-parameter-types
+          ([script]) => !EXCLUDED_PACKAGE_SCRIPTS.has(script as RootPackageScript)
+        )
+      );
+    }
 
     /* Update cloned file. */
     await writeFile(`${clonedDirectory}/package.json`, JSON.stringify(clonedPackage, undefined, 2));
