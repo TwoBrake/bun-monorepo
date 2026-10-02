@@ -11,7 +11,7 @@ import {
   isValidPackage,
   replaceOccurrences
 } from "./lib";
-import { confirm, intro, log, outro, path, select, spinner, text } from "@clack/prompts";
+import { type Task, confirm, intro, log, outro, path, select, tasks, text } from "@clack/prompts";
 import { readFile, writeFile } from "node:fs/promises";
 import { ActionAbortedError } from "@repo/utility/errors";
 import { downloadTemplate } from "giget";
@@ -90,84 +90,91 @@ const main = async (): Promise<void> => {
       })
     );
 
-    /** The spinner to show whilst the project is being cloned from the remote. */
-    const pulling = spinner();
-    pulling.start("Installing template from GitHub.");
+    let clonedDirectory: string | undefined = undefined;
+    const installationTasks: Task[] = [
+      {
+        task: async () => {
+          const { dir } = await downloadTemplate(`gh:${PACKAGE_NAME}`, {
+            dir: targetDirectory,
+            ignore: IGNORE_PATH_LIST
+          });
 
-    const { dir: clonedDirectory } = await downloadTemplate(`gh:${PACKAGE_NAME}`, {
-      dir: targetDirectory,
-      ignore: IGNORE_PATH_LIST
-    });
-    pulling.stop("Installed template from GitHub.");
-
-    /** The raw contents of the 'package.json' of the cloned project. */
-    const clonedPackageContents = await readFile(`${clonedDirectory}/package.json`, "utf8");
-
-    /** The JSON contents of the project. */
-    const clonedPackage = JSON.parse(clonedPackageContents) as unknown;
-    if (!isValidPackage(clonedPackage)) {
-      log.error("Invalid package.");
-
-      process.exitCode = 1;
-      return;
-    }
-
-    /* Assign default package configuration. */
-    Object.assign(clonedPackage, DEFAULT_PACKAGE);
-    log.info("Successfully applied default options.");
-
-    /* Assign author information. */
-    clonedPackage.author = {
-      email: authorEmail,
-      name: authorName
-    };
-
-    /* Assign project name. */
-    clonedPackage.name = projectName;
-
-    /* Exclude the excluded package scripts. */
-    if (clonedPackage.scripts) {
-      clonedPackage.scripts = Object.fromEntries(
-        Object.entries(clonedPackage.scripts).filter(
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion typescript/prefer-readonly-parameter-types
-          ([script]) => !EXCLUDED_PACKAGE_SCRIPTS.has(script as RootPackageScript)
-        )
-      );
-    }
-
-    /* Update cloned file. */
-    await writeFile(`${clonedDirectory}/package.json`, JSON.stringify(clonedPackage, undefined, 2));
-    log.info("Successfully applied configured options.");
-
-    /* Update imported dependencies. */
-    await replaceOccurrences({
-      cwd: clonedDirectory,
-      extensions: ["ts", "tsx", "json"],
-      queries: [
-        {
-          query: `"@repo/`,
-          replaceWith: `"@${projectName}/`
+          clonedDirectory = dir;
         },
-        {
-          query: "'@repo/",
-          replaceWith: `'@${projectName}/`
-        }
-      ]
-    });
+        title: "Pulling most recent version from GitHub."
+      },
+      {
+        task: async () => {
+          if (clonedDirectory === undefined) {
+            throw new Error("Failed to clone.");
+          }
 
-    /* If the user decided they wanted the dependencies to be installed, install them. */
+          /** The raw contents of the 'package.json' of the cloned project. */
+          const clonedPackageContents = await readFile(`${clonedDirectory}/package.json`, "utf8");
+
+          /** The JSON contents of the project. */
+          const clonedPackage = JSON.parse(clonedPackageContents) as unknown;
+          if (!isValidPackage(clonedPackage)) {
+            throw new Error("Invalid package.");
+          }
+
+          /* Assign default package configuration. */
+          Object.assign(clonedPackage, DEFAULT_PACKAGE);
+
+          /* Assign author information. */
+          clonedPackage.author = {
+            email: authorEmail,
+            name: authorName
+          };
+
+          /* Assign project name. */
+          clonedPackage.name = projectName;
+
+          /* Exclude the excluded package scripts. */
+          if (clonedPackage.scripts) {
+            clonedPackage.scripts = Object.fromEntries(
+              Object.entries(clonedPackage.scripts).filter(
+                // oxlint-disable-next-line typescript/no-unsafe-type-assertion typescript/prefer-readonly-parameter-types
+                ([script]) => !EXCLUDED_PACKAGE_SCRIPTS.has(script as RootPackageScript)
+              )
+            );
+          }
+
+          /* Update cloned file. */
+          await writeFile(`${clonedDirectory}/package.json`, JSON.stringify(clonedPackage, undefined, 2));
+
+          /* Update imported dependencies. */
+          await replaceOccurrences({
+            cwd: clonedDirectory,
+            extensions: ["ts", "tsx", "json"],
+            queries: [
+              {
+                query: `"@repo/`,
+                replaceWith: `"@${projectName}/`
+              },
+              {
+                query: "'@repo/",
+                replaceWith: `'@${projectName}/`
+              }
+            ]
+          });
+        },
+        title: "Applying configured options to template."
+      }
+    ];
+
     if (shouldInstallDependencies) {
-      /** The spinner to be shown whilst the dependencies are installing. */
-      const installing = spinner();
-      installing.start("Installing dependencies.");
-
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      await execute(DEFAULT_INSTALL_COMMANDS[frameworkType], {
-        cwd: clonedDirectory
+      installationTasks.push({
+        task: async () => {
+          await execute(DEFAULT_INSTALL_COMMANDS[frameworkType], {
+            cwd: clonedDirectory
+          });
+        },
+        title: "Installing dependencies."
       });
-
-      installing.stop();
     }
+
+    await tasks(installationTasks);
 
     outro(`Your project was successfully created at: ${clonedDirectory}`);
   } catch (error: unknown) {
