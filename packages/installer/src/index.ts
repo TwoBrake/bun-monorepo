@@ -62,14 +62,15 @@ const isCancelled = (prompt: unknown): prompt is symbol => isCancel(prompt);
  *
  * @returns The prompt result.
  */
-const createPrompt = async <TPrompt>(prompt: () => Promise<TPrompt | symbol>): Promise<TPrompt> => {
+const createPrompt = async <TPrompt>(prompt: () => Promise<TPrompt | symbol>): Promise<Exclude<TPrompt, symbol>> => {
   const result = await prompt();
 
   if (isCancelled(result)) {
     throw new ActionAbortedError("PROMPT");
   }
 
-  return result;
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  return result as Promise<Exclude<TPrompt, symbol>>;
 };
 
 /** Invokes the installation helper. */
@@ -154,7 +155,7 @@ const main = async (): Promise<void> => {
     pulling.start("Installing template from GitHub.");
 
     const { dir: clonedDirectory } = await downloadTemplate(`gh:${PACKAGE_NAME}`, {
-      dir: String(targetDirectory),
+      dir: targetDirectory,
       ignore: IGNORE_PATH_LIST
     });
     pulling.stop("Installed template from GitHub.");
@@ -177,12 +178,12 @@ const main = async (): Promise<void> => {
 
     /* Assign author information. */
     clonedPackage.author = {
-      email: String(authorEmail),
-      name: String(authorName)
+      email: authorEmail,
+      name: authorName
     };
 
     /* Assign project name. */
-    clonedPackage.name = String(projectName);
+    clonedPackage.name = projectName;
 
     /* Exclude the excluded package scripts. */
     if (clonedPackage.scripts) {
@@ -199,13 +200,13 @@ const main = async (): Promise<void> => {
     log.info("Successfully applied configured options.");
 
     /* If the user decided they wanted the dependencies to be installed, install them. */
-    if (shouldInstallDependencies === true) {
+    if (shouldInstallDependencies) {
       /** The spinner to be shown whilst the dependencies are installing. */
       const installing = spinner();
       installing.start("Installing dependencies.");
 
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      await execute(DEFAULT_INSTALL_COMMANDS[String(frameworkType) as keyof typeof DEFAULT_INSTALL_COMMANDS], {
+      await execute(DEFAULT_INSTALL_COMMANDS[frameworkType], {
         cwd: clonedDirectory
       });
 
