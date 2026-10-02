@@ -1,83 +1,26 @@
 // Resources
-import { confirm, intro, isCancel, log, outro, path, select, spinner, text } from "@clack/prompts";
+import {
+  DEFAULT_INSTALL_COMMANDS,
+  DEFAULT_PACKAGE,
+  EXCLUDED_PACKAGE_SCRIPTS,
+  IGNORE_PATH_LIST,
+  PACKAGE_NAME,
+  type RootPackageScript,
+  createPrompt,
+  execute,
+  isValidPackage
+} from "./lib";
+import { confirm, intro, log, outro, path, select, spinner, text } from "@clack/prompts";
 import { readFile, writeFile } from "node:fs/promises";
 import { ActionAbortedError } from "@repo/utility/errors";
-import type { PackageJson as Package } from "type-fest";
 import { downloadTemplate } from "giget";
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
-import type rootPackage from "../../../package.json";
+import installerPackage from "../package.json";
 import { z } from "zod";
-
-/** Scripts that are configured in the root package. */
-type RootPackageScript = keyof (typeof rootPackage)["scripts"];
-
-/** The default package configuration to use for the cloned template. */
-const DEFAULT_PACKAGE: Partial<Package> = {
-  version: "0.0.1"
-} as const;
-
-/** The package name and scope to be cloned to the user's file system. */
-const PACKAGE_NAME = "TwoBrake/bun-monorepo" as const;
-
-/** The default commands that can be used with the framework selection to install dependencies. */
-const DEFAULT_INSTALL_COMMANDS = {
-  bun: "bun install",
-  npm: "npm install",
-  pnpm: "pnpm install"
-} as const;
-
-/** The package scripts to remove during the installation process. */
-const EXCLUDED_PACKAGE_SCRIPTS = new Set<RootPackageScript>(["installer:build"]);
-
-/** The paths to ignore when pulling source from remote. */
-const IGNORE_PATH_LIST: string[] = ["packages/installer", "README.md"];
-
-/** The execution API wrapper that allows asynchronous usage. */
-// oxlint-disable-next-line typescript/strict-void-return
-const execute = promisify(exec);
-
-/**
- * Ensures the provided value is a proper package.
- *
- * @param value The package to validate.
- *
- * @returns The determination that the value is a proper package.
- */
-const isValidPackage = (value: unknown): value is Package =>
-  typeof value === "object" && value !== null && "name" in value;
-
-/**
- * Ensures the provided prompt is cancelled.
- *
- * @param prompt The prompt.
- *
- * @returns A boolean representing if the prompt was cancelled or not.
- */
-const isCancelled = (prompt: unknown): prompt is symbol => isCancel(prompt);
-
-/**
- * Wrapper for creating prompts to handle aborts.
- *
- * @param prompt A function that returns the prompt result.
- *
- * @returns The prompt result.
- */
-const createPrompt = async <TPrompt>(prompt: () => Promise<TPrompt | symbol>): Promise<Exclude<TPrompt, symbol>> => {
-  const result = await prompt();
-
-  if (isCancelled(result)) {
-    throw new ActionAbortedError("PROMPT");
-  }
-
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  return result as Promise<Exclude<TPrompt, symbol>>;
-};
 
 /** Invokes the installation helper. */
 const main = async (): Promise<void> => {
   try {
-    intro("bun-monorepo");
+    intro(`bun-monorepo (${installerPackage.version})`);
 
     /** The name to use for the author. */
     const authorName = await createPrompt(async () =>
