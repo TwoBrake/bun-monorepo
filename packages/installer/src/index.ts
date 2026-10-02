@@ -26,7 +26,11 @@ const DEFAULT_INSTALL_COMMANDS = {
   pnpm: "pnpm install"
 } as const;
 
+/** The package scripts to remove during the installation process. */
 const EXCLUDED_PACKAGE_SCRIPTS = new Set<RootPackageScript>(["installer:build"]);
+
+/** The paths to ignore when pulling source from remote. */
+const IGNORE_PATH_LIST: string[] = ["packages/installer", "README.md"];
 
 /** The execution API wrapper that allows asynchronous usage. */
 // oxlint-disable-next-line typescript/strict-void-return
@@ -73,7 +77,7 @@ const main = async (): Promise<void> => {
   try {
     intro("bun-monorepo");
 
-    /* Ask the user for their name. */
+    /** The name to use for the author. */
     const authorName = await createPrompt(async () =>
       text({
         message: "What is your name?",
@@ -82,6 +86,7 @@ const main = async (): Promise<void> => {
       })
     );
 
+    /** The email address to use for the author. */
     const authorEmail = await createPrompt(async () =>
       text({
         message: "What is your email address?",
@@ -93,6 +98,7 @@ const main = async (): Promise<void> => {
       })
     );
 
+    /** The name to set for the project. */
     const projectName = await createPrompt(async () =>
       text({
         message: "What would you like to call your project?",
@@ -116,7 +122,7 @@ const main = async (): Promise<void> => {
       })
     );
 
-    /* Ask the user the path to set the project up at. */
+    /** The path to create the project at. */
     const targetDirectory = await createPrompt(async () =>
       path({
         directory: true,
@@ -124,6 +130,7 @@ const main = async (): Promise<void> => {
       })
     );
 
+    /** The type of framework to use for installing dependencies. */
     const frameworkType = await createPrompt(async () =>
       select<keyof typeof DEFAULT_INSTALL_COMMANDS>({
         message: "What framework would you like to use for the project?",
@@ -135,24 +142,27 @@ const main = async (): Promise<void> => {
       })
     );
 
+    /** Whether the dependencies should be installed at the newly created project. */
     const shouldInstallDependencies = await createPrompt(async () =>
       confirm({
         message: "Once the template is ready, would you like me to install my dependencies?"
       })
     );
 
+    /** The spinner to show whilst the project is being cloned from the remote. */
     const pulling = spinner();
     pulling.start("Installing template from GitHub.");
 
     const { dir: clonedDirectory } = await downloadTemplate(`gh:${PACKAGE_NAME}`, {
       dir: String(targetDirectory),
-      ignore: ["packages/installer"]
+      ignore: IGNORE_PATH_LIST
     });
     pulling.stop("Installed template from GitHub.");
 
-    /* Ensure we have proper package. */
+    /** The raw contents of the 'package.json' of the cloned project. */
     const clonedPackageContents = await readFile(`${clonedDirectory}/package.json`, "utf8");
 
+    /** The JSON contents of the project. */
     const clonedPackage = JSON.parse(clonedPackageContents) as unknown;
     if (!isValidPackage(clonedPackage)) {
       log.error("Invalid package.");
@@ -174,6 +184,7 @@ const main = async (): Promise<void> => {
     /* Assign project name. */
     clonedPackage.name = String(projectName);
 
+    /* Exclude the excluded package scripts. */
     if (clonedPackage.scripts) {
       clonedPackage.scripts = Object.fromEntries(
         Object.entries(clonedPackage.scripts).filter(
@@ -187,7 +198,9 @@ const main = async (): Promise<void> => {
     await writeFile(`${clonedDirectory}/package.json`, JSON.stringify(clonedPackage, undefined, 2));
     log.info("Successfully applied configured options.");
 
+    /* If the user decided they wanted the dependencies to be installed, install them. */
     if (shouldInstallDependencies === true) {
+      /** The spinner to be shown whilst the dependencies are installing. */
       const installing = spinner();
       installing.start("Installing dependencies.");
 
