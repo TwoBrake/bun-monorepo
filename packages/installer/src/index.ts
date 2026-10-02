@@ -7,6 +7,7 @@ import { downloadTemplate } from "giget";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import type rootPackage from "../../../package.json";
+import { z } from "zod";
 
 /** Scripts that are configured in the root package. */
 type RootPackageScript = keyof (typeof rootPackage)["scripts"];
@@ -83,7 +84,8 @@ const main = async (): Promise<void> => {
       text({
         message: "What is your name?",
         placeholder: "Lucas Stranks",
-        validate: name => (name !== undefined && name.length < 3 ? "Must be at least 3 characters long." : undefined)
+        validate: name =>
+          z.safeParse(z.string().min(3), name).success ? undefined : "Must be at least 3 characters long."
       })
     );
 
@@ -92,10 +94,7 @@ const main = async (): Promise<void> => {
       text({
         message: "What is your email address?",
         placeholder: "name@domain.com",
-        validate: email =>
-          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/u.test(String(email))
-            ? undefined
-            : "Not a valid email address."
+        validate: email => (z.safeParse(z.email(), email).success ? undefined : "Not a valid email address.")
       })
     );
 
@@ -105,20 +104,17 @@ const main = async (): Promise<void> => {
         message: "What would you like to call your project?",
         placeholder: "cool-project",
         validate: name => {
-          if (name === undefined || name.length < 3) {
-            return "The name must be at least 3 characters long.";
-          }
+          const result = z.safeParse(
+            z
+              .string()
+              .min(3, "Must be at least 3 characters long.")
+              .lowercase("Must be all lowercase.")
+              .refine(value => !value.includes(" "), "Must not have any whitespace."),
+            name
+          );
 
-          if (name !== name.toLowerCase()) {
-            return "The name must be all lower case.";
-          }
-
-          if (name.includes(" ")) {
-            return "The name must not have any whitespace.";
-          }
-
-          // oxlint-disable-next-line unicorn/no-useless-undefined
-          return undefined;
+          // oxlint-disable-next-line oxc/no-optional-chaining
+          return result.success ? undefined : (result.error.issues[0]?.message ?? "Unknown error.");
         }
       })
     );
