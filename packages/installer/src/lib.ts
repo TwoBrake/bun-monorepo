@@ -11,11 +11,16 @@ import { promisify } from "node:util";
 import type rootPackage from "../../../package.json";
 
 /** The data required to replace a set of content in all files. */
-export interface ReplaceOccurrencesData {
-  cwd: string;
-  extensions: readonly string[];
-  query: string;
-  replacer: string;
+export interface ReplaceOccurrencesParameters {
+  readonly cwd: string;
+  readonly extensions: readonly string[];
+  readonly queries: readonly Readonly<ReplaceOccurrenceQuery>[];
+}
+
+/** An entry for a query. */
+export interface ReplaceOccurrenceQuery {
+  readonly query: string;
+  readonly replaceWith: string;
 }
 
 /** Scripts that are configured in the root package. */
@@ -47,8 +52,8 @@ export const IGNORE_PATH_LIST: string[] = ["packages/installer", "README.md"];
  *
  * @param data The data to include in the operation.
  */
-export const replaceOccurrences = async (data: Readonly<ReplaceOccurrencesData>): Promise<void> => {
-  const { cwd, extensions, query, replacer } = data;
+export const replaceOccurrences = async (data: Readonly<ReplaceOccurrencesParameters>): Promise<void> => {
+  const { cwd, extensions, queries } = data;
   const directory = await readdir(cwd, { withFileTypes: true });
   const files = directory.filter((file: Readonly<Dirent>) =>
     extensions.some(extension => file.name.endsWith(`.${extension}`))
@@ -67,7 +72,11 @@ export const replaceOccurrences = async (data: Readonly<ReplaceOccurrencesData>)
       }
 
       const raw = await readFile(filePath, "utf8");
-      const updated = raw.replaceAll(query, replacer);
+      let updated = raw;
+
+      for (const query of queries) {
+        updated = updated.replaceAll(query.query, query.replaceWith);
+      }
 
       if (updated === raw) {
         return;
