@@ -1,7 +1,18 @@
 {
   "name": "@twobrake/monorepo-installer",
-  "version": "0.1.0",
   "description": "The installer for an opinionated monorepo starter for TypeScript built on the Bun ecosystem.",
+  "author": {
+    "name": "Lucas Stranks"
+  },
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test-install": "bun run src/index.ts",
+    "build": "tsdown",
+    "build:watch": "tsdown --watch",
+    "publish": "bun publish --access public",
+    "prepublishOnly": "bun run build"
+  },
   "keywords": [
     "bun",
     "installer",
@@ -18,15 +29,11 @@
   "files": [
     "dist"
   ],
-  "type": "module",
   "publishConfig": {
     "access": "public"
   },
-  "scripts": {
-    "test-install": "bun run src/index.ts",
-    "build": "tsdown",
-    "build:watch": "tsdown --watch",
-    "prepublishOnly": "bun run build"
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {
     "@clack/prompts": "^1.8.1",
@@ -37,8 +44,5 @@
   "devDependencies": {
     "tsdown": "^0.23.0",
     "type-fest": "^5.10.0"
-  },
-  "engines": {
-    "node": ">=20"
   }
 }

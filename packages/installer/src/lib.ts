@@ -42,7 +42,7 @@ export const DEFAULT_INSTALL_COMMANDS = {
 } as const;
 
 /** The package scripts to remove during the installation process. */
-export const EXCLUDED_PACKAGE_SCRIPTS = new Set<RootPackageScript>(["installer:build"]);
+export const EXCLUDED_PACKAGE_SCRIPTS = new Set<RootPackageScript>(["installer:build", "installer:publish"]);
 
 /** The paths to ignore when pulling source from remote. */
 export const IGNORE_PATH_LIST: string[] = ["packages/installer", "README.md"];

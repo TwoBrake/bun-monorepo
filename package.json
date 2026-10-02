@@ -18,6 +18,7 @@
     "db:generate": "bun --env-file=.env run --filter '@repo/database' generate",
     "db:migrate": "bun --env-file=.env run --filter '@repo/database' migrate",
     "installer:build": "bun --env-file=.env run --filter '@twobrake/monorepo-installer' build",
+    "installer:publish": "bun --env-file=.env run --filter '@twobrake-monorepo-installer' publish",
     "prepare": "husky",
     "format": "oxfmt .",
     "lint": "oxlint .",
