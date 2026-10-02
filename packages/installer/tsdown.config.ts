@@ -13,7 +13,11 @@ const configuration = defineConfig({
 
   entry: ["./src/index.ts"],
 
-  format: "esm"
+  format: "esm",
+
+  outputOptions: {
+    comments: false
+  }
 });
 
 export default configuration;
