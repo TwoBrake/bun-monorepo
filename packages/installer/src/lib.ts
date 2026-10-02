@@ -1,15 +1,19 @@
 // Resources
 import { ActionAbortedError } from "@repo/utility/errors";
+import type { Dirent } from "node:fs";
 import type { PackageJson as Package } from "type-fest";
+// oxlint-disable-next-line sort-imports
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import { exec } from "node:child_process";
 import { isCancel } from "@clack/prompts";
+import path from "node:path";
 import { promisify } from "node:util";
 import type rootPackage from "../../../package.json";
 
 /** The data required to replace a set of content in all files. */
 export interface ReplaceOccurrencesData {
   cwd: string;
-  extensions: string;
+  extensions: readonly string[];
   query: string;
   replacer: string;
 }
@@ -38,7 +42,41 @@ export const EXCLUDED_PACKAGE_SCRIPTS = new Set<RootPackageScript>(["installer:b
 /** The paths to ignore when pulling source from remote. */
 export const IGNORE_PATH_LIST: string[] = ["packages/installer", "README.md"];
 
-// Export const replaceOccurrences = (data: ReplaceOccurrencesData) => true;
+/**
+ * Replaces all of the occurrences of a query based on the provided extensions and CWD.
+ *
+ * @param data The data to include in the operation.
+ */
+export const replaceOccurrences = async (data: Readonly<ReplaceOccurrencesData>): Promise<void> => {
+  const { cwd, extensions, query, replacer } = data;
+  const directory = await readdir(cwd, { withFileTypes: true });
+  const files = directory.filter((file: Readonly<Dirent>) =>
+    extensions.some(extension => file.name.endsWith(`.${extension}`))
+  );
+
+  await Promise.all(
+    files.map(async (file: Readonly<Dirent>) => {
+      const filePath = path.join(cwd, file.name);
+
+      if (file.isDirectory()) {
+        return;
+      }
+
+      if (!extensions.includes(path.extname(file.name))) {
+        return;
+      }
+
+      const raw = await readFile(filePath, "utf8");
+      const updated = raw.replaceAll(query, replacer);
+
+      if (updated === raw) {
+        return;
+      }
+
+      await writeFile(filePath, updated, "utf8");
+    })
+  );
+};
 
 /**
  * Ensures the provided value is a proper package.
