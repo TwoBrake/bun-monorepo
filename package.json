@@ -1,6 +1,10 @@
 {
   "name": "repo",
-  "description": "My monorepo setup with Bun.",
+  "private": true,
+  "description": "An opinionated starter template for TypeScript using the Bun ecosystem.",
+  "author": {
+    "name": "Lucas Stranks"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -9,12 +13,17 @@
   "scripts": {
     "app:start": "bun --env-file=.env run --filter '@repo/my-app' start",
     "app:dev": "bun --env-file=.env run --filter '@repo/my-app' dev",
-    "db:push": "bun --env-file=.env run --filter @repo/database push",
-    "db:generate": "bun --env-file=.env run --filter @repo/database generate",
-    "db:migrate": "bun --env-file=.env run --filter @repo/database migrate",
+    "web:start": "bun --env-file=.env run --filter '@repo/web' start",
+    "web:dev": "bun --env-file=.env run --filter '@repo/web' dev",
+    "db:push": "bun --env-file=.env run --filter '@repo/database' push",
+    "db:generate": "bun --env-file=.env run --filter '@repo/database' generate",
+    "db:migrate": "bun --env-file=.env run --filter '@repo/database' migrate",
+    "installer:build": "bun --env-file=.env run --filter '@twobrake/create-monorepo' build",
+    "installer:publish": "bun --env-file=.env run --filter '@twobrake/create-monorepo' release",
     "prepare": "husky",
     "format": "oxfmt .",
     "lint": "oxlint .",
+    "typecheck": "bun run --filter '*' --if-present typecheck",
     "stats": "bunx cloc . --exclude-dir=node_modules,out,types,include,.husky,.vscode,.idea,.forgejo,.github,.codex,.agents,.git --match-f=\"[.]tsx?$\""
   },
   "dependencies": {

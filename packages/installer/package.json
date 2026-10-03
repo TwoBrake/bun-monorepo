@@ -1,0 +1,48 @@
+{
+  "name": "@twobrake/create-monorepo",
+  "version": "0.1.0",
+  "description": "The installer for an opinionated monorepo starter for TypeScript built on the Bun ecosystem.",
+  "keywords": [
+    "bun",
+    "installer",
+    "monorepo",
+    "oxfmt",
+    "oxlint",
+    "template",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Lucas Stranks"
+  },
+  "bin": {
+    "create-monorepo": "dist/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test-install": "bun run src/index.ts",
+    "build": "tsdown",
+    "build:watch": "tsdown --watch",
+    "release": "bun publish --access public",
+    "prepublishOnly": "bun run build"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.8.1",
+    "giget": "^3.3.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@repo/utility": "workspace:*",
+    "tsdown": "^0.23.0",
+    "type-fest": "^5.10.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

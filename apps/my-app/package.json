@@ -7,7 +7,6 @@
     "dev": "bun --watch src/index.ts"
   },
   "dependencies": {
-    "@repo/config": "workspace:*",
     "@repo/utility": "workspace:*"
   }
 }
