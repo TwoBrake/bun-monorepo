@@ -17,12 +17,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/twobrake/bun-monorepo.git",
+    "url": "git+https://github.com/TwoBrake/bun-monorepo.git",
     "directory": "packages/installer"
   },
-  "homepage": "https://github.com/twobrake/bun-monorepo#readme",
+  "homepage": "https://github.com/TwoBrake/bun-monorepo#readme",
   "bugs": {
-    "url": "https://github.com/twobrake/bun-monorepo/issues"
+    "url": "https://github.com/TwoBrake/bun-monorepo/issues"
   },
   "bin": {
     "create-monorepo": "dist/index.mjs"
