@@ -175,6 +175,24 @@ const main = async (): Promise<void> => {
       });
     }
 
+    /* Output overview of selected options. */
+    log.info(
+      `Overview:\n\nProject Name: ${projectName}\nAuthor Name: ${authorName}\nAuthor Email: ${authorEmail}\nPath: ${targetDirectory}\nFramework: ${frameworkType}\nInstall Dependencies: ${shouldInstallDependencies ? "Yes" : "No"}`
+    );
+
+    /* Warn interruptions may have unintended side-effects. */
+    log.warn(
+      "Proceeding to the next step will start the installation process. Cancelling during it may cause unintended side-effects."
+    );
+
+    const shouldFinalize = await createPrompt(async () =>
+      confirm({ message: "Are you sure you want to finalize the installation?" })
+    );
+
+    if (!shouldFinalize) {
+      throw new ActionAbortedError("User cancelled.");
+    }
+
     await tasks(installationTasks);
 
     outro(`Your project was successfully created at: ${clonedDirectory}`);
