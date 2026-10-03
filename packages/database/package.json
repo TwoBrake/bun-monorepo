@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@repo/config": "workspace:*",
-    "drizzle-orm": "^1.0.0-rc.4",
+    "drizzle-orm": "^1.0.0-rc.5-5935859",
     "pg": "^8.23.0"
   },
   "devDependencies": {
