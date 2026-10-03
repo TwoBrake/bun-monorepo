@@ -4,10 +4,11 @@
         <h1>Bun Monorepo</h1>
     </div>
     <div>
-        <img src="https://img.shields.io/github/actions/workflow/status/twobrake/bun-monorepo/lint.yml?branch=main&label=CI&style=for-the-badge" alt="CI State" />
-        <img src="https://img.shields.io/github/license/twobrake/bun-monorepo?style=for-the-badge&label=License&color=white" alt="License" />
-        <img src="https://img.shields.io/github/last-commit/twobrake/bun-monorepo?style=for-the-badge&label=Committed&color=orange" alt="Committed" />
-        <img src="https://img.shields.io/github/issues/twobrake/bun-monorepo?style=for-the-badge&label=Issues&color=red" alt="Issues" />
+        <img src="https://img.shields.io/github/actions/workflow/status/twobrake/bun-monorepo/lint.yml?branch=main&label=CI&style=for-the-badge&logo=githubactions" alt="CI State" />
+        <img src="https://img.shields.io/github/license/twobrake/bun-monorepo?style=for-the-badge&label=License&color=white&logo=unlicense" alt="License" />
+        <img src="https://img.shields.io/github/last-commit/twobrake/bun-monorepo?style=for-the-badge&label=Committed&color=orange&logo=git" alt="Committed" />
+        <img src="https://img.shields.io/github/issues/twobrake/bun-monorepo?style=for-the-badge&label=Issues&color=red&logo=github" alt="Issues" />
+        <img src="https://img.shields.io/npm/v/%40twobrake%2Fcreate-monorepo?style=for-the-badge&label=Installer Version&logo=npm&color=red" />
     </div>
 </div>
 <div align="start">
