@@ -7,7 +7,8 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { exec } from "node:child_process";
 import { isCancel } from "@clack/prompts";
 import path from "node:path";
-import { promisify } from "node:util";
+// oxlint-disable-next-line sort-imports
+import { parseArgs, promisify } from "node:util";
 import type rootPackage from "../../../package.json";
 
 /** The data required to replace a set of content in all files. */
@@ -25,6 +26,40 @@ export interface ReplaceOccurrenceQuery {
 
 /** Scripts that are configured in the root package. */
 export type RootPackageScript = keyof (typeof rootPackage)["scripts"];
+
+/** An optional set of command arguments that can be passed to the installer to input preset values. */
+export const COMMAND_ARGUMENTS = parseArgs({
+  options: {
+    directory: {
+      short: "d",
+      type: "string"
+    },
+    email: {
+      short: "e",
+      type: "string"
+    },
+    finalize: {
+      short: "y",
+      type: "boolean"
+    },
+    framework: {
+      short: "f",
+      type: "string"
+    },
+    installDependencies: {
+      short: "i",
+      type: "boolean"
+    },
+    name: {
+      short: "n",
+      type: "string"
+    },
+    projectName: {
+      short: "p",
+      type: "string"
+    }
+  }
+});
 
 /** The default values to apply to a new 'package.json'. */
 export const DEFAULT_PACKAGE: Partial<Package> = {

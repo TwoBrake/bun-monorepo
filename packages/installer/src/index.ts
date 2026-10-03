@@ -1,5 +1,6 @@
 // Resources
 import {
+  COMMAND_ARGUMENTS,
   DEFAULT_INSTALL_COMMANDS,
   DEFAULT_PACKAGE,
   EXCLUDED_PACKAGE_SCRIPTS,
@@ -24,9 +25,12 @@ const main = async (): Promise<void> => {
   try {
     intro(`bun-monorepo (${installerPackage.version})`);
 
+    const flags = COMMAND_ARGUMENTS.values;
+
     /** The name to use for the author. */
     const authorName = await createPrompt(async () =>
       text({
+        initialValue: flags.name,
         message: "What is your name?",
         placeholder: "Lucas Stranks",
         validate: name =>
@@ -37,6 +41,7 @@ const main = async (): Promise<void> => {
     /** The email address to use for the author. */
     const authorEmail = await createPrompt(async () =>
       text({
+        initialValue: flags.email,
         message: "What is your email address?",
         placeholder: "name@domain.com",
         validate: email => (z.safeParse(z.email(), email).success ? undefined : "Not a valid email address.")
@@ -46,6 +51,7 @@ const main = async (): Promise<void> => {
     /** The name to set for the project. */
     const projectName = await createPrompt(async () =>
       text({
+        initialValue: flags.projectName,
         message: "What would you like to call your project?",
         placeholder: "cool-project",
         validate: name => {
@@ -68,6 +74,7 @@ const main = async (): Promise<void> => {
     const targetDirectory = await createPrompt(async () =>
       path({
         directory: true,
+        initialValue: flags.directory,
         message: "Where do you want to create this project at?"
       })
     );
@@ -75,6 +82,7 @@ const main = async (): Promise<void> => {
     /** The type of framework to use for installing dependencies. */
     const frameworkType = await createPrompt(async () =>
       select<keyof typeof DEFAULT_INSTALL_COMMANDS>({
+        initialValue: "bun",
         message: "What framework would you like to use for the project?",
         options: [
           { label: "Bun (Recommended)", value: "bun" },
@@ -87,6 +95,7 @@ const main = async (): Promise<void> => {
     /** Whether the dependencies should be installed at the newly created project. */
     const shouldInstallDependencies = await createPrompt(async () =>
       confirm({
+        initialValue: flags.installDependencies,
         message: "Once the template is ready, would you like me to install my dependencies?"
       })
     );
@@ -186,7 +195,7 @@ const main = async (): Promise<void> => {
     );
 
     const shouldFinalize = await createPrompt(async () =>
-      confirm({ message: "Are you sure you want to finalize the installation?" })
+      confirm({ initialValue: flags.finalize, message: "Are you sure you want to finalize the installation?" })
     );
 
     if (!shouldFinalize) {

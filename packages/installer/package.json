@@ -11,6 +11,10 @@
     "template",
     "typescript"
   ],
+  "homepage": "https://github.com/TwoBrake/bun-monorepo#readme",
+  "bugs": {
+    "url": "https://github.com/TwoBrake/bun-monorepo/issues"
+  },
   "license": "MIT",
   "author": {
     "name": "Lucas Stranks"
@@ -19,10 +23,6 @@
     "type": "git",
     "url": "git+https://github.com/TwoBrake/bun-monorepo.git",
     "directory": "packages/installer"
-  },
-  "homepage": "https://github.com/TwoBrake/bun-monorepo#readme",
-  "bugs": {
-    "url": "https://github.com/TwoBrake/bun-monorepo/issues"
   },
   "bin": {
     "create-monorepo": "dist/index.mjs"
