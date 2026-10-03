@@ -14,7 +14,7 @@
     }
   },
   "dependencies": {
-    "@logtape/logtape": "^2.3.9",
+    "@logtape/logtape": "^2.3.10",
     "@repo/config": "workspace:*"
   }
 }

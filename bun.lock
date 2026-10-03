@@ -76,7 +76,7 @@
     },
     "packages/installer": {
       "name": "@twobrake/create-monorepo",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "bin": {
         "create-monorepo": "./dist/index.mjs",
       },
@@ -95,7 +95,7 @@
       "name": "@repo/utility",
       "version": "0.0.0",
       "dependencies": {
-        "@logtape/logtape": "^2.3.9",
+        "@logtape/logtape": "^2.3.10",
         "@repo/config": "workspace:*",
       },
     },
@@ -262,7 +262,7 @@
 
     "@js-temporal/polyfill": ["@js-temporal/polyfill@0.5.1", "", { "dependencies": { "jsbi": "^4.3.0" } }, "sha512-hloP58zRVCRSpgDxmqCWJNlizAlUgJFqG2ypq79DCvyv9tHjRYMDOcPFjzfl/A1/YxDvRCZz8wvZvmapQnKwFQ=="],
 
-    "@logtape/logtape": ["@logtape/logtape@2.3.9", "", {}, "sha512-VwrfX+GSWEtk+v17nQzANwt3/8iAZw1Kbk6HvwPiKHadrAv/P/AiDTTxar1l1XNkSmkRZICfPEUBdxTPRDLcHQ=="],
+    "@logtape/logtape": ["@logtape/logtape@2.3.10", "", {}, "sha512-IdOrFCHMSGYz+fq7xrxKCjXxItHHdiVenNaHeFJhXOkaVXFAHCdrPPBQJvJVmYbAUY5PCP8kSMxY+GIoxkmwHA=="],
 
     "@oozcitak/dom": ["@oozcitak/dom@2.0.2", "", { "dependencies": { "@oozcitak/infra": "^2.0.2", "@oozcitak/url": "^3.0.0", "@oozcitak/util": "^10.0.0" } }, "sha512-GjpKhkSYC3Mj4+lfwEyI1dqnsKTgwGy48ytZEhm4A/xnH/8z9M3ZVXKr/YGQi3uCLs1AEBS+x5T2JPiueEDW8w=="],
 
