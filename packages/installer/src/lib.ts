@@ -51,7 +51,8 @@ export const IGNORE_PATH_LIST: string[] = [
   "README.md",
   ".github/images",
   ".github/images/**",
-  ".github/workflows/publish-installer.yml"
+  ".github/workflows/publish-installer.yml",
+  ".github/dependabot.yml"
 ];
 
 /**
