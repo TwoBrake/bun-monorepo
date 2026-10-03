@@ -8,7 +8,7 @@
         <img src="https://img.shields.io/github/license/twobrake/bun-monorepo?style=for-the-badge&label=License&color=white&logo=unlicense" alt="License" />
         <img src="https://img.shields.io/github/last-commit/twobrake/bun-monorepo?style=for-the-badge&label=Committed&color=orange&logo=git" alt="Committed" />
         <img src="https://img.shields.io/github/issues/twobrake/bun-monorepo?style=for-the-badge&label=Issues&color=red&logo=github" alt="Issues" />
-        <img src="https://img.shields.io/npm/v/%40twobrake%2Fcreate-monorepo?style=for-the-badge&label=Installer Version&logo=npm&color=red" />
+        <img src="https://img.shields.io/npm/v/%40twobrake%2Fcreate-monorepo?style=for-the-badge&label=Installer Version&logo=npm&color=red" alt="NPM Version" />
     </div>
 </div>
 <div align="start">
