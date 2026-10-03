@@ -1,6 +1,6 @@
 {
   "name": "@twobrake/create-monorepo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The installer for an opinionated monorepo starter for TypeScript built on the Bun ecosystem.",
   "keywords": [
     "bun",
