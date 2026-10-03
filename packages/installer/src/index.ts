@@ -13,7 +13,8 @@ import {
 } from "./lib";
 import { type Task, confirm, intro, log, outro, path, select, tasks, text } from "@clack/prompts";
 import { readFile, writeFile } from "node:fs/promises";
-import { ActionAbortedError } from "@repo/utility/errors";
+// oxlint-disable-next-line sort-imports
+import { ActionAbortedError, InternalError } from "@repo/utility/errors";
 import { downloadTemplate } from "giget";
 import installerPackage from "../package.json";
 import { z } from "zod";
@@ -106,7 +107,7 @@ const main = async (): Promise<void> => {
       {
         task: async () => {
           if (clonedDirectory === undefined) {
-            throw new Error("Failed to clone.");
+            throw new InternalError("Failed to clone.");
           }
 
           /** The raw contents of the 'package.json' of the cloned project. */
@@ -115,7 +116,7 @@ const main = async (): Promise<void> => {
           /** The JSON contents of the project. */
           const clonedPackage = JSON.parse(clonedPackageContents) as unknown;
           if (!isValidPackage(clonedPackage)) {
-            throw new Error("Invalid package.");
+            throw new InternalError("Invalid package.");
           }
 
           /* Assign default package configuration. */
@@ -180,6 +181,8 @@ const main = async (): Promise<void> => {
   } catch (error: unknown) {
     if (error instanceof ActionAbortedError) {
       log.error("Installation was aborted.");
+    } else if (error instanceof InternalError) {
+      log.error(error.message);
     } else {
       log.error("Something went wrong, please try again.");
     }
