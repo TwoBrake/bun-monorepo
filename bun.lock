@@ -75,24 +75,25 @@
       },
     },
     "packages/installer": {
-      "name": "@twobrake/monorepo-installer",
+      "name": "@twobrake/create-monorepo",
       "version": "0.1.0",
       "bin": {
-        "monorepo-installer": "./dist/index.mjs",
+        "create-monorepo": "./dist/index.mjs",
       },
       "dependencies": {
         "@clack/prompts": "^1.8.1",
-        "@repo/utility": "workspace:*",
         "giget": "^3.3.1",
         "zod": "^4.6.5",
       },
       "devDependencies": {
+        "@repo/utility": "workspace:*",
         "tsdown": "^0.23.0",
         "type-fest": "^5.10.0",
       },
     },
     "packages/utility": {
       "name": "@repo/utility",
+      "version": "0.0.0",
       "dependencies": {
         "@logtape/logtape": "^2.3.9",
         "@repo/config": "workspace:*",
@@ -495,7 +496,7 @@
 
     "@tanstack/virtual-file-routes": ["@tanstack/virtual-file-routes@1.162.0", "", {}, "sha512-uhOeFyxLcU41HzvrxsGpiWdcMbScY1EDgbZ5K7DVRMYInbLYWAC0EA/kx9wXAoSM8q82bUG2hRl8+EAjE6XAbA=="],
 
-    "@twobrake/monorepo-installer": ["@twobrake/monorepo-installer@workspace:packages/installer"],
+    "@twobrake/create-monorepo": ["@twobrake/create-monorepo@workspace:packages/installer"],
 
     "@types/bun": ["@types/bun@1.4.2", "", { "dependencies": { "bun-types": "1.4.2" } }, "sha512-GimotNn7+ZV0uVArItBbriZsR1oNf0+WTzPkdcFrzShI7k2norL0uzEaJT8T33dWr7O/c9ZDuAFQrctKCi72oQ=="],
 

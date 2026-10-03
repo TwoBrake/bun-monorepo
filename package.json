@@ -1,5 +1,6 @@
 {
   "name": "repo",
+  "private": true,
   "description": "An opinionated starter template for TypeScript using the Bun ecosystem.",
   "author": {
     "name": "Lucas Stranks"
@@ -17,8 +18,8 @@
     "db:push": "bun --env-file=.env run --filter '@repo/database' push",
     "db:generate": "bun --env-file=.env run --filter '@repo/database' generate",
     "db:migrate": "bun --env-file=.env run --filter '@repo/database' migrate",
-    "installer:build": "bun --env-file=.env run --filter '@twobrake/monorepo-installer' build",
-    "installer:publish": "bun --env-file=.env run --filter '@twobrake-monorepo-installer' publish",
+    "installer:build": "bun --env-file=.env run --filter '@twobrake/create-monorepo' build",
+    "installer:publish": "bun --env-file=.env run --filter '@twobrake/create-monorepo' release",
     "prepare": "husky",
     "format": "oxfmt .",
     "lint": "oxlint .",
