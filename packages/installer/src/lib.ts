@@ -84,7 +84,7 @@ export const DEFAULT_INSTALL_COMMANDS = {
 export const EXCLUDED_PACKAGE_SCRIPTS = new Set<RootPackageScript>(["installer:build", "installer:publish"]);
 
 /** The paths to ignore when pulling source from remote. */
-export const IGNORE_PATH_LIST: string[] = [
+export const CLONE_IGNORE_PATH_LIST = new Set<string>([
   "packages/installer",
   "packages/installer/**",
   "README.md",
@@ -96,7 +96,7 @@ export const IGNORE_PATH_LIST: string[] = [
   ".github/images/**",
   ".github/workflows/publish-installer.yml",
   ".github/dependabot.yml"
-];
+]);
 
 /**
  * Constructs a title to be used in CLI introductions.

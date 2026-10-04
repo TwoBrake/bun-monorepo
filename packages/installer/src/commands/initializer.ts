@@ -1,10 +1,10 @@
 // Resources
 import {
+  CLONE_IGNORE_PATH_LIST,
   COMMAND_ARGUMENTS,
   DEFAULT_INSTALL_COMMANDS,
   DEFAULT_PACKAGE,
   EXCLUDED_PACKAGE_SCRIPTS,
-  IGNORE_PATH_LIST,
   PACKAGE_NAME,
   type RootPackageScript,
   createPrompt,
@@ -109,7 +109,7 @@ const initializer = async (): Promise<void> => {
         task: async () => {
           const { dir } = await downloadTemplate(`gh:${PACKAGE_NAME}`, {
             dir: targetDirectory,
-            ignore: IGNORE_PATH_LIST
+            ignore: [...CLONE_IGNORE_PATH_LIST]
           });
 
           clonedDirectory = dir;
