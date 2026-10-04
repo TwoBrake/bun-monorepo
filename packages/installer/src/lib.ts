@@ -10,6 +10,7 @@ import { isCancel } from "@clack/prompts";
 import path from "node:path";
 // oxlint-disable-next-line sort-imports
 import { parseArgs, promisify } from "node:util";
+import type { Possible } from "@repo/utility";
 import type { ZodSafeParseResult } from "zod";
 import type rootPackage from "../../../package.json";
 
@@ -120,7 +121,7 @@ export const createReadableError = (error: unknown): string => {
 };
 
 // oxlint-disable-next-line typescript/prefer-readonly-parameter-types
-export const createReadableZodError = (zodResult: ZodSafeParseResult<unknown>): string | undefined =>
+export const createReadableZodError = (zodResult: ZodSafeParseResult<unknown>): Possible<string> =>
   // oxlint-disable-next-line oxc/no-optional-chaining
   zodResult.success ? undefined : (zodResult.error.issues[0]?.message ?? "Unknown error.");
 

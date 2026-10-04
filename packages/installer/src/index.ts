@@ -19,6 +19,7 @@ import { type Task, confirm, intro, log, outro, path, select, tasks, text } from
 import { readFile, writeFile } from "node:fs/promises";
 // oxlint-disable-next-line sort-imports
 import { ActionAbortedError, InternalError } from "@repo/utility/errors";
+import type { Possible } from "@repo/utility";
 import { downloadTemplate } from "giget";
 import installerPackage from "../package.json";
 import { z } from "zod";
@@ -102,7 +103,7 @@ const main = async (): Promise<void> => {
       })
     );
 
-    let clonedDirectory: string | undefined = undefined;
+    let clonedDirectory: Possible<string> = undefined;
     const installationTasks: Task[] = [
       {
         task: async () => {

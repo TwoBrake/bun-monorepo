@@ -1,5 +1,5 @@
 // Resources
-import { createPrompt, createReadableZodError, createTitle } from "./lib";
+import { createPrompt, createReadableError, createReadableZodError, createTitle } from "./lib";
 import { intro, log, outro, path, select, text } from "@clack/prompts";
 import type { Dirent } from "node:fs";
 import { InternalError } from "@repo/utility/errors";
@@ -61,8 +61,9 @@ const assetCreator = async (): Promise<void> => {
     log.info(assetName);
 
     outro(`Successfully created new ${assetType}.`);
-  } catch {
-    log.error("whoops!");
+  } catch (error) {
+    log.error(createReadableError(error));
+    process.exitCode = 1;
   }
 };
 
