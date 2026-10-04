@@ -10,6 +10,7 @@ import { isCancel } from "@clack/prompts";
 import path from "node:path";
 // oxlint-disable-next-line sort-imports
 import { parseArgs, promisify } from "node:util";
+import type { ZodSafeParseResult } from "zod";
 import type rootPackage from "../../../package.json";
 
 /** The data required to replace a set of content in all files. */
@@ -117,6 +118,11 @@ export const createReadableError = (error: unknown): string => {
 
   return "Something went wrong, please try again.";
 };
+
+// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
+export const createReadableZodError = (zodResult: ZodSafeParseResult<unknown>): string | undefined =>
+  // oxlint-disable-next-line oxc/no-optional-chaining
+  zodResult.success ? undefined : (zodResult.error.issues[0]?.message ?? "Unknown error.");
 
 /**
  * Replaces all of the occurrences of a query based on the provided extensions and CWD.

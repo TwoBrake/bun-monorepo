@@ -9,6 +9,7 @@ import {
   type RootPackageScript,
   createPrompt,
   createReadableError,
+  createReadableZodError,
   createTitle,
   execute,
   isValidPackage,
@@ -57,19 +58,17 @@ const main = async (): Promise<void> => {
         initialValue: flags.projectName,
         message: "What would you like to call your project?",
         placeholder: "cool-project",
-        validate: name => {
-          const result = z.safeParse(
-            z
-              .string()
-              .min(3, "Must be at least 3 characters long.")
-              .lowercase("Must be all lowercase.")
-              .refine(value => !value.includes(" "), "Must not have any whitespace."),
-            name
-          );
-
-          // oxlint-disable-next-line oxc/no-optional-chaining
-          return result.success ? undefined : (result.error.issues[0]?.message ?? "Unknown error.");
-        }
+        validate: name =>
+          createReadableZodError(
+            z.safeParse(
+              z
+                .string()
+                .min(3, "Must be at least 3 characters long.")
+                .lowercase("Must be all lowercase.")
+                .refine(value => !value.includes(" "), "Must not have any whitespace."),
+              name
+            )
+          )
       })
     );
 

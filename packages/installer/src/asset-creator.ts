@@ -1,5 +1,5 @@
 // Resources
-import { createPrompt, createTitle } from "./lib";
+import { createPrompt, createReadableZodError, createTitle } from "./lib";
 import { intro, log, outro, path, select, text } from "@clack/prompts";
 import type { Dirent } from "node:fs";
 import { InternalError } from "@repo/utility/errors";
@@ -47,7 +47,13 @@ const assetCreator = async (): Promise<void> => {
       text({
         message: `What would you like to call your ${assetType}?`,
         placeholder: "database",
-        validate: name => (z.safeParse(z.string().min(3).lowercase(), name).success ? undefined : "")
+        validate: name =>
+          createReadableZodError(
+            z.safeParse(
+              z.string().min(3, "Must be at least 3 characters long.").lowercase("Must be all lowercase."),
+              name
+            )
+          )
       })
     );
 
