@@ -35,7 +35,7 @@
     "access": "public"
   },
   "scripts": {
-    "test-install": "bun run src/index.ts",
+    "cli": "bun run src/index.ts",
     "build": "tsdown",
     "build:watch": "tsdown --watch",
     "release": "npm publish --access public",

@@ -1,9 +1,10 @@
 // Resources
 import { createPrompt, createReadableError, createReadableZodError, createTitle } from "../lib";
-import { intro, log, outro, path, select, text } from "@clack/prompts";
+import { intro, log, outro, path, select, tasks, text } from "@clack/prompts";
 import type { Dirent } from "node:fs";
+// oxlint-disable-next-line sort-imports
+import { cp, readdir } from "node:fs/promises";
 import { InternalError } from "@repo/utility/errors";
-import { readdir } from "node:fs/promises";
 import { z } from "zod";
 
 /** The asset creator  */
@@ -57,6 +58,21 @@ const assetCreator = async (): Promise<void> => {
           )
       })
     );
+
+    await tasks([
+      {
+        task: async (): Promise<void> => {
+          const clonedPath = `${projectPath}/packages/${assetName}`;
+          await cp(`${projectPath}/packages/config`, clonedPath);
+
+          const clonedDirectory = await readdir(clonedPath, { withFileTypes: true });
+          const clonedDirectoryContents = clonedDirectory.map((file: Readonly<Dirent>) => file.name);
+
+          log.info(clonedDirectoryContents.join(", "));
+        },
+        title: "Clone configuration package template."
+      }
+    ]);
 
     log.info(assetName);
 
