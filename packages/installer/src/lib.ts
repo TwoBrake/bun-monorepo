@@ -1,10 +1,11 @@
 // Resources
-import { ActionAbortedError } from "@repo/utility/errors";
+import { ActionAbortedError, InternalError } from "@repo/utility/errors";
 import type { Dirent } from "node:fs";
 import type { PackageJson as Package } from "type-fest";
 // oxlint-disable-next-line sort-imports
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { exec } from "node:child_process";
+import installerPackage from "../package.json";
 import { isCancel } from "@clack/prompts";
 import path from "node:path";
 // oxlint-disable-next-line sort-imports
@@ -89,6 +90,33 @@ export const IGNORE_PATH_LIST: string[] = [
   ".github/workflows/publish-installer.yml",
   ".github/dependabot.yml"
 ];
+
+/**
+ * Constructs a title to be used in CLI introductions.
+ *
+ * @param page The custom sub-page title to use.
+ *
+ * @returns The constructed title.
+ */
+export const createTitle = (page?: string): string =>
+  `bun-monorepo (${installerPackage.version})${page === undefined ? "" : ` - ${page}`}`;
+
+/**
+ * Constructs a readable error from an error instance.
+ *
+ * @param error The error instance.
+ *
+ * @returns The readable error.
+ */
+export const createReadableError = (error: unknown): string => {
+  if (error instanceof ActionAbortedError) {
+    return "Installation was aborted.";
+  } else if (error instanceof InternalError) {
+    return error.message;
+  }
+
+  return "Something went wrong, please try again.";
+};
 
 /**
  * Replaces all of the occurrences of a query based on the provided extensions and CWD.

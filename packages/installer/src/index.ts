@@ -8,6 +8,8 @@ import {
   PACKAGE_NAME,
   type RootPackageScript,
   createPrompt,
+  createReadableError,
+  createTitle,
   execute,
   isValidPackage,
   replaceOccurrences
@@ -17,13 +19,12 @@ import { readFile, writeFile } from "node:fs/promises";
 // oxlint-disable-next-line sort-imports
 import { ActionAbortedError, InternalError } from "@repo/utility/errors";
 import { downloadTemplate } from "giget";
-import installerPackage from "../package.json";
 import { z } from "zod";
 
 /** Invokes the installation helper. */
 const main = async (): Promise<void> => {
   try {
-    intro(`bun-monorepo (${installerPackage.version})`);
+    intro(createTitle());
 
     const flags = COMMAND_ARGUMENTS.values;
 
@@ -206,14 +207,7 @@ const main = async (): Promise<void> => {
 
     outro(`Your project was successfully created at: ${clonedDirectory}`);
   } catch (error: unknown) {
-    if (error instanceof ActionAbortedError) {
-      log.error("Installation was aborted.");
-    } else if (error instanceof InternalError) {
-      log.error(error.message);
-    } else {
-      log.error("Something went wrong, please try again.");
-    }
-
+    log.error(createReadableError(error));
     process.exitCode = 1;
   }
 };
