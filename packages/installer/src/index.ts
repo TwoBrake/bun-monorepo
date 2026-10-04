@@ -34,28 +34,28 @@ const main = async (): Promise<void> => {
     /** The name to use for the author. */
     const authorName = await createPrompt(async () =>
       text({
-        initialValue: flags.name,
+        initialValue: flags.name ?? "",
         message: "What is your name?",
         placeholder: "Lucas Stranks",
         validate: name =>
-          z.safeParse(z.string().min(3), name).success ? undefined : "Must be at least 3 characters long."
+          createReadableZodError(z.safeParse(z.string().min(3, "Must be at least 3 characters long."), name))
       })
     );
 
     /** The email address to use for the author. */
     const authorEmail = await createPrompt(async () =>
       text({
-        initialValue: flags.email,
+        initialValue: flags.email ?? "",
         message: "What is your email address?",
         placeholder: "name@domain.com",
-        validate: email => (z.safeParse(z.email(), email).success ? undefined : "Not a valid email address.")
+        validate: email => createReadableZodError(z.safeParse(z.email("Not a valid email address."), email))
       })
     );
 
     /** The name to set for the project. */
     const projectName = await createPrompt(async () =>
       text({
-        initialValue: flags.projectName,
+        initialValue: flags.projectName ?? "",
         message: "What would you like to call your project?",
         placeholder: "cool-project",
         validate: name =>

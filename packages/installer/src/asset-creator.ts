@@ -45,6 +45,7 @@ const assetCreator = async (): Promise<void> => {
     /** The name of the asset. */
     const assetName = await createPrompt(async () =>
       text({
+        initialValue: "",
         message: `What would you like to call your ${assetType}?`,
         placeholder: "database",
         validate: name =>
