@@ -1,0 +1,1 @@
+Contributions are strongly encouraged to anyone who has an interest in this project or just has time in general to help out and improve the project to it's fullest extent. The project was started as a personal utility to making my development workflows more efficient but wanted to make it accessible to the community.
