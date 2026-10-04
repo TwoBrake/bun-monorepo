@@ -32,6 +32,7 @@ export type RootPackageScript = keyof (typeof rootPackage)["scripts"];
 
 /** An optional set of command arguments that can be passed to the installer to input preset values. */
 export const COMMAND_ARGUMENTS = parseArgs({
+  allowPositionals: true,
   options: {
     directory: {
       short: "d",

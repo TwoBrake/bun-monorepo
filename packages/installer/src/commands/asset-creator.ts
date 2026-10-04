@@ -1,5 +1,5 @@
 // Resources
-import { createPrompt, createReadableError, createReadableZodError, createTitle } from "./lib";
+import { createPrompt, createReadableError, createReadableZodError, createTitle } from "../lib";
 import { intro, log, outro, path, select, text } from "@clack/prompts";
 import type { Dirent } from "node:fs";
 import { InternalError } from "@repo/utility/errors";
@@ -67,4 +67,4 @@ const assetCreator = async (): Promise<void> => {
   }
 };
 
-await assetCreator();
+export default assetCreator;
