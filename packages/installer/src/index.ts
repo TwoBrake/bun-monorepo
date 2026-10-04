@@ -19,12 +19,14 @@ import { readFile, writeFile } from "node:fs/promises";
 // oxlint-disable-next-line sort-imports
 import { ActionAbortedError, InternalError } from "@repo/utility/errors";
 import { downloadTemplate } from "giget";
+import installerPackage from "../package.json";
 import { z } from "zod";
 
 /** Invokes the installation helper. */
 const main = async (): Promise<void> => {
   try {
     intro(createTitle());
+    log.message(installerPackage.description);
 
     const flags = COMMAND_ARGUMENTS.values;
 
