@@ -33,6 +33,13 @@ const assetCreator = async (): Promise<void> => {
     const projectRootRawContents = await readdir(projectPath, { withFileTypes: true });
     const projectRootContents = new Set<string>(projectRootRawContents.map((file: Readonly<Dirent>) => file.name));
 
+    const rootPackageRaw = await readFile(`${projectPath}/package.json`, "utf8");
+    const rootPackage = JSON.parse(rootPackageRaw) as unknown;
+
+    if (!isValidPackage(rootPackage)) {
+      throw new InternalError("Invalid root package.");
+    }
+
     /* If the project isn't a valid monorepo, don't continue with creation. */
     if (!projectRootContents.has("apps") || !projectRootContents.has("packages")) {
       throw new InternalError("This is not a monorepo.");
@@ -71,12 +78,29 @@ const assetCreator = async (): Promise<void> => {
       })
     );
 
-    // TODO: Ensure package doesn't already exist.
-    const projectContents = await deepReadDirectory(projectPath);
+    /* Load all package's in monorepo. */
+    const projectContents = await deepReadDirectory(projectPath, ["node_modules"]);
     const projectPackageConfigs = projectContents.filter((file: ReadonlyDirent) => file.name === "package.json");
 
-    // TODO: Read & validate package name's here.
-    log.warn(JSON.stringify(projectPackageConfigs));
+    /* Ensure a folder doesn't exist with the same name to prevent overlap. */
+    if (projectPackageConfigs.some(config => path.basename(config.parentPath) === assetName)) {
+      throw new InternalError("There is already an asset's folder with the provided name.");
+    }
+
+    /* Information about all packages. */
+    const projectPackageRawContents = await Promise.all(
+      projectPackageConfigs.map(async (file: ReadonlyDirent) => {
+        const fileRaw = await readFile(path.join(file.parentPath, file.name), "utf8");
+        return JSON.parse(fileRaw) as unknown;
+      })
+    );
+    const projectPackageContents = projectPackageRawContents.filter((json: unknown) => isValidPackage(json));
+
+    /* Ensure that there isn't already an asset with the configured name. */
+    // oxlint-disable-next-line typescript/prefer-readonly-parameter-types
+    if (projectPackageContents.some(pack => pack.name === `@${rootPackage.name}/${assetName}`)) {
+      throw new InternalError("An asset with the provided name already exists.");
+    }
 
     /** The framework the user is using. */
     const frameworkType = await createPrompt(async () => frameworkSelect("bun"));
@@ -86,16 +110,10 @@ const assetCreator = async (): Promise<void> => {
       confirm({ initialValue: true, message: "Would you like me to run the formatting framework after?" })
     );
 
+    /** The tasks that need to complete for the asset to be created. */
     const assetTasks: Task[] = [
       {
         task: async (): Promise<void> => {
-          const rootPackageRaw = await readFile(`${projectPath}/package.json`, "utf8");
-          const rootPackage = JSON.parse(rootPackageRaw) as unknown;
-
-          if (!isValidPackage(rootPackage)) {
-            throw new InternalError("Invalid root package.");
-          }
-
           const clonedPath = `${projectPath}/${assetType === "app" ? "apps" : "packages"}/${assetName}`;
           await cp(`${projectPath}/packages/config`, clonedPath, {
             filter: file => path.basename(file) !== "node_modules",

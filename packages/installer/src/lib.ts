@@ -158,16 +158,17 @@ export const createReadableZodError = (zodResult: ZodSafeParseResult<unknown>): 
  * Gets a list of all contents nested deeply in a folder.
  *
  * @param cwd The directory.
+ * @param ignore Directory names to ignore.
  *
  * @returns A list of all the contents.
  */
-export const deepReadDirectory = async (cwd: string): Promise<Readonly<Dirent>[]> => {
+export const deepReadDirectory = async (cwd: string, ignore: readonly string[] = []): Promise<Readonly<Dirent>[]> => {
   const contents = await readdir(cwd, { withFileTypes: true });
   const files = contents.filter((file: ReadonlyDirent) => !file.isDirectory());
-  const directories = contents.filter((file: ReadonlyDirent) => file.isDirectory());
+  const directories = contents.filter((file: ReadonlyDirent) => file.isDirectory() && !ignore.includes(file.name));
 
   const nestedContents = await Promise.all(
-    directories.map(async (directory: ReadonlyDirent) => deepReadDirectory(path.join(cwd, directory.name)))
+    directories.map(async (directory: ReadonlyDirent) => deepReadDirectory(path.join(cwd, directory.name), ignore))
   );
 
   return [...files, ...nestedContents.flat()];
