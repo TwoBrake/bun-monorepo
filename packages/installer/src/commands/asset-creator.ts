@@ -1,10 +1,12 @@
 // Resources
 import {
   DEFAULT_COMMAND_PREFIXES,
+  type ReadonlyDirent,
   createPrompt,
   createReadableError,
   createReadableZodError,
   createTitle,
+  deepReadDirectory,
   execute,
   frameworkSelect,
   isValidPackage
@@ -70,6 +72,11 @@ const assetCreator = async (): Promise<void> => {
     );
 
     // TODO: Ensure package doesn't already exist.
+    const projectContents = await deepReadDirectory(projectPath);
+    const projectPackageConfigs = projectContents.filter((file: ReadonlyDirent) => file.name === "package.json");
+
+    // TODO: Read & validate package name's here.
+    log.warn(JSON.stringify(projectPackageConfigs));
 
     /** The framework the user is using. */
     const frameworkType = await createPrompt(async () => frameworkSelect("bun"));

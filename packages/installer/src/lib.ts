@@ -34,6 +34,8 @@ export type RootPackageScript = keyof (typeof rootPackage)["scripts"];
 /** A command prefix. */
 export type CommandPrefix = keyof typeof DEFAULT_COMMAND_PREFIXES;
 
+export type ReadonlyDirent = Readonly<Dirent>;
+
 /** An optional set of command arguments that can be passed to the installer to input preset values. */
 export const COMMAND_ARGUMENTS = parseArgs({
   allowPositionals: true,
@@ -151,6 +153,25 @@ export const createReadableError = (error: unknown): string => {
 export const createReadableZodError = (zodResult: ZodSafeParseResult<unknown>): Possible<string> =>
   // oxlint-disable-next-line oxc/no-optional-chaining
   zodResult.success ? undefined : (zodResult.error.issues[0]?.message ?? "Unknown error.");
+
+/**
+ * Gets a list of all contents nested deeply in a folder.
+ *
+ * @param cwd The directory.
+ *
+ * @returns A list of all the contents.
+ */
+export const deepReadDirectory = async (cwd: string): Promise<Readonly<Dirent>[]> => {
+  const contents = await readdir(cwd, { withFileTypes: true });
+  const files = contents.filter((file: ReadonlyDirent) => !file.isDirectory());
+  const directories = contents.filter((file: ReadonlyDirent) => file.isDirectory());
+
+  const nestedContents = await Promise.all(
+    directories.map(async (directory: ReadonlyDirent) => deepReadDirectory(path.join(cwd, directory.name)))
+  );
+
+  return [...files, ...nestedContents.flat()];
+};
 
 /**
  * Replaces all of the occurrences of a query based on the provided extensions and CWD.
