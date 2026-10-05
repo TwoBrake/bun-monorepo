@@ -2,7 +2,7 @@
 import {
   CLONE_IGNORE_PATH_LIST,
   COMMAND_ARGUMENTS,
-  DEFAULT_INSTALL_COMMANDS,
+  DEFAULT_COMMAND_PREFIXES,
   DEFAULT_PACKAGE,
   EXCLUDED_PACKAGE_SCRIPTS,
   PACKAGE_NAME,
@@ -12,10 +12,11 @@ import {
   createReadableZodError,
   createTitle,
   execute,
+  frameworkSelect,
   isValidPackage,
   replaceOccurrences
 } from "../lib";
-import { type Task, confirm, intro, log, outro, path, select, tasks, text } from "@clack/prompts";
+import { type Task, confirm, intro, log, outro, path, tasks, text } from "@clack/prompts";
 import { readFile, writeFile } from "node:fs/promises";
 // oxlint-disable-next-line sort-imports
 import { ActionAbortedError, InternalError } from "@repo/utility/errors";
@@ -83,17 +84,7 @@ const initializer = async (): Promise<void> => {
     );
 
     /** The type of framework to use for installing dependencies. */
-    const frameworkType = await createPrompt(async () =>
-      select<keyof typeof DEFAULT_INSTALL_COMMANDS>({
-        initialValue: "bun",
-        message: "What framework would you like to use for the project?",
-        options: [
-          { label: "Bun (Recommended)", value: "bun" },
-          { label: "NPM", value: "npm" },
-          { label: "PNPM", value: "pnpm" }
-        ]
-      })
-    );
+    const frameworkType = await createPrompt(async () => frameworkSelect("bun"));
 
     /** Whether the dependencies should be installed at the newly created project. */
     const shouldInstallDependencies = await createPrompt(async () =>
@@ -179,7 +170,7 @@ const initializer = async (): Promise<void> => {
     if (shouldInstallDependencies) {
       installationTasks.push({
         task: async () => {
-          await execute(DEFAULT_INSTALL_COMMANDS[frameworkType], {
+          await execute(`${DEFAULT_COMMAND_PREFIXES[frameworkType]} install`, {
             cwd: clonedDirectory
           });
         },

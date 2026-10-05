@@ -1,9 +1,19 @@
 // Resources
-import { createPrompt, createReadableError, createReadableZodError, createTitle } from "../lib";
-import { intro, log, outro, path, select, tasks, text } from "@clack/prompts";
+import {
+  DEFAULT_COMMAND_PREFIXES,
+  createPrompt,
+  createReadableError,
+  createReadableZodError,
+  createTitle,
+  execute,
+  frameworkSelect,
+  isValidPackage
+} from "../lib";
+import { type Task, confirm, intro, log, outro, path as promptPath, select, tasks, text } from "@clack/prompts";
 import type { Dirent } from "node:fs";
+import path from "node:path";
 // oxlint-disable-next-line sort-imports
-import { cp, readdir } from "node:fs/promises";
+import { cp, readdir, readFile, writeFile } from "node:fs/promises";
 import { InternalError } from "@repo/utility/errors";
 import { z } from "zod";
 
@@ -15,7 +25,7 @@ const assetCreator = async (): Promise<void> => {
 
     /** The path of the Bun monorepo. */
     const projectPath = await createPrompt(async () =>
-      path({ directory: true, message: "Where is your current project at?" })
+      promptPath({ directory: true, message: "Where is your current project at?" })
     );
 
     const projectRootRawContents = await readdir(projectPath, { withFileTypes: true });
@@ -59,25 +69,65 @@ const assetCreator = async (): Promise<void> => {
       })
     );
 
-    await tasks([
+    /** The framework the user is using. */
+    const frameworkType = await createPrompt(async () => frameworkSelect("bun"));
+
+    /** Whether or not a format should take place once finished. */
+    const shouldFormat = await createPrompt(async () =>
+      confirm({ initialValue: true, message: "Would you like me to run the formatting framework after?" })
+    );
+
+    const assetTasks: Task[] = [
       {
         task: async (): Promise<void> => {
-          const clonedPath = `${projectPath}/packages/${assetName}`;
-          await cp(`${projectPath}/packages/config`, clonedPath);
+          const rootPackageRaw = await readFile(`${projectPath}/package.json`, "utf8");
+          const rootPackage = JSON.parse(rootPackageRaw) as unknown;
 
-          const clonedDirectory = await readdir(clonedPath, { withFileTypes: true });
-          const clonedDirectoryContents = clonedDirectory.map((file: Readonly<Dirent>) => file.name);
+          if (!isValidPackage(rootPackage)) {
+            throw new InternalError("Invalid root package.");
+          }
 
-          log.info(clonedDirectoryContents.join(", "));
+          const clonedPath = `${projectPath}/${assetType === "app" ? "apps" : "packages"}/${assetName}`;
+          await cp(`${projectPath}/packages/config`, clonedPath, {
+            filter: file => path.basename(file) !== "node_modules",
+            recursive: true
+          });
+
+          const clonedPackageRaw = await readFile(`${clonedPath}/package.json`, "utf8");
+          const clonedPackage = JSON.parse(clonedPackageRaw) as unknown;
+
+          if (!isValidPackage(clonedPackage)) {
+            throw new InternalError("Invalid asset package.");
+          }
+
+          clonedPackage.name = `@${rootPackage.name}/${assetName}`;
+
+          delete clonedPackage.dependencies;
+          delete clonedPackage.exports;
+
+          await writeFile(`${clonedPath}/package.json`, JSON.stringify(clonedPackage), "utf8");
+          await writeFile(`${clonedPath}/src/index.ts`, "// TODO: Put asset code here!", "utf8");
         },
-        title: "Clone configuration package template."
+        title: "Clone configuration package template and configure."
       }
-    ]);
+    ];
 
-    log.info(assetName);
+    if (shouldFormat) {
+      assetTasks.push({
+        task: async () => {
+          await execute(`${DEFAULT_COMMAND_PREFIXES[frameworkType]} run lint`, { cwd: projectPath });
+        },
+        title: "Running linting framework."
+      });
+    }
 
-    outro(`Successfully created new ${assetType}.`);
+    await tasks(assetTasks);
+
+    outro(
+      `Successfully created new ${assetType} at '${projectPath}/${assetType === "app" ? "apps" : "packages"}/${assetName}'.`
+    );
   } catch (error) {
+    log.error(String(error));
     log.error(createReadableError(error));
     process.exitCode = 1;
   }

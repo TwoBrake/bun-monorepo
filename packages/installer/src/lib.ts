@@ -6,7 +6,8 @@ import type { PackageJson as Package } from "type-fest";
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { exec } from "node:child_process";
 import installerPackage from "../package.json";
-import { isCancel } from "@clack/prompts";
+// oxlint-disable-next-line sort-imports
+import { isCancel, select } from "@clack/prompts";
 import path from "node:path";
 // oxlint-disable-next-line sort-imports
 import { parseArgs, promisify } from "node:util";
@@ -29,6 +30,9 @@ export interface ReplaceOccurrenceQuery {
 
 /** Scripts that are configured in the root package. */
 export type RootPackageScript = keyof (typeof rootPackage)["scripts"];
+
+/** A command prefix. */
+export type CommandPrefix = keyof typeof DEFAULT_COMMAND_PREFIXES;
 
 /** An optional set of command arguments that can be passed to the installer to input preset values. */
 export const COMMAND_ARGUMENTS = parseArgs({
@@ -74,10 +78,10 @@ export const DEFAULT_PACKAGE: Partial<Package> = {
 export const PACKAGE_NAME = "TwoBrake/bun-monorepo" as const;
 
 /** The default commands that can be used with the framework selection to install dependencies. */
-export const DEFAULT_INSTALL_COMMANDS = {
-  bun: "bun install",
-  npm: "npm install",
-  pnpm: "pnpm install"
+export const DEFAULT_COMMAND_PREFIXES = {
+  bun: "bun",
+  npm: "npm",
+  pnpm: "pnpm"
 } as const;
 
 /** The package scripts to remove during the installation process. */
@@ -97,6 +101,24 @@ export const CLONE_IGNORE_PATH_LIST = new Set<string>([
   ".github/workflows/publish-installer.yml",
   ".github/dependabot.yml"
 ]);
+
+/**
+ * A select allowing the user to select the framework they're using.
+ *
+ * @param defaultValue The default value to use.
+ *
+ * @returns The framework selection.
+ */
+export const frameworkSelect = async (defaultValue: CommandPrefix): ReturnType<typeof select<CommandPrefix>> =>
+  select<CommandPrefix>({
+    initialValue: defaultValue,
+    message: "What framework would you like to use for the project?",
+    options: [
+      { label: "Bun (Recommended)", value: "bun" },
+      { label: "NPM", value: "npm" },
+      { label: "PNPM", value: "pnpm" }
+    ]
+  });
 
 /**
  * Constructs a title to be used in CLI introductions.
