@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Keep shared installer helpers in this module.
 // Resources
 import { ActionAbortedError, InternalError } from "@repo/utility/errors";
 import type { Dirent } from "node:fs";
@@ -259,3 +260,59 @@ export const createPrompt = async <TPrompt>(
 /** The execution API wrapper that allows asynchronous usage. */
 // oxlint-disable-next-line typescript/strict-void-return
 export const execute = promisify(exec);
+
+/**
+ * Reads a workspace manifest, allowing incomplete assets without one.
+ *
+ * @param manifestPath The manifest location.
+ * @returns The parsed manifest, or undefined when absent.
+ */
+const readWorkspaceManifest = async (manifestPath: string): Promise<unknown> => {
+  const raw = await readFile(manifestPath, "utf8").catch((error: unknown) => {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+      return;
+    }
+    throw new Error(`Cannot read workspace manifest "${manifestPath}".`, { cause: error });
+  });
+  if (raw === undefined) {
+    return undefined;
+  }
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch (error) {
+    throw new Error(`Invalid JSON in workspace manifest "${manifestPath}".`, { cause: error });
+  }
+};
+
+/**
+ * Checks folder and package names across the template's workspace directories.
+ *
+ * @param projectPath The monorepo location.
+ * @param assetName The requested folder name.
+ * @param packageName The requested package name.
+ */
+export const checkAssetConflicts = async (projectPath: string, assetName: string, packageName: string): Promise<void> => {
+  await Promise.all(
+    ["apps", "packages"].map(async workspace => {
+      const workspacePath = path.join(projectPath, workspace);
+      const entries = await readdir(workspacePath, { withFileTypes: true });
+      await Promise.all(
+        entries.map(async (entry: Readonly<Dirent>) => {
+          const entryPath = path.join(workspacePath, entry.name);
+          if (entry.name === assetName) {
+            throw new Error(`Cannot create asset: "${entryPath}" already exists.`);
+          }
+          if (entry.isDirectory() || entry.isSymbolicLink()) {
+            const manifestPath = path.join(entryPath, "package.json");
+            const manifest = await readWorkspaceManifest(manifestPath);
+            if (isValidPackage(manifest) && manifest.name === packageName) {
+              throw new Error(
+                `Cannot create asset: package "${packageName}" is already declared in "${manifestPath}".`
+              );
+            }
+          }
+        })
+      );
+    })
+  );
+};

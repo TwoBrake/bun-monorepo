@@ -1,12 +1,11 @@
 // Resources
 import {
   DEFAULT_COMMAND_PREFIXES,
-  type ReadonlyDirent,
+  checkAssetConflicts,
   createPrompt,
   createReadableError,
   createReadableZodError,
   createTitle,
-  deepReadDirectory,
   execute,
   frameworkSelect,
   isValidPackage
@@ -15,34 +14,43 @@ import { type Task, confirm, intro, log, outro, path as promptPath, select, task
 import type { Dirent } from "node:fs";
 import path from "node:path";
 // oxlint-disable-next-line sort-imports
-import { cp, readdir, readFile, writeFile } from "node:fs/promises";
-import { InternalError } from "@repo/utility/errors";
+import { cp, lstat, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { z } from "zod";
 
-/** The asset creator  */
+/** Creates an application or package without overwriting existing assets. */
 const assetCreator = async (): Promise<void> => {
   try {
     intro(createTitle("Asset Creator"));
-    log.message("A helper for creating new assets under an already constructed Bun monorepo setup.");
+    log.message("Create an application or package in an existing Bun monorepo.");
 
     /** The path of the Bun monorepo. */
     const projectPath = await createPrompt(async () =>
-      promptPath({ directory: true, message: "Where is your current project at?" })
+      promptPath({ directory: true, message: "Where is your monorepo located?" })
     );
 
     const projectRootRawContents = await readdir(projectPath, { withFileTypes: true });
-    const projectRootContents = new Set<string>(projectRootRawContents.map((file: Readonly<Dirent>) => file.name));
+    const projectRootContents = new Set<string>(
+      projectRootRawContents
+        .filter((file: Readonly<Dirent>) => file.isDirectory())
+        .map((file: Readonly<Dirent>) => file.name)
+    );
 
     const rootPackageRaw = await readFile(`${projectPath}/package.json`, "utf8");
     const rootPackage = JSON.parse(rootPackageRaw) as unknown;
 
     if (!isValidPackage(rootPackage)) {
-      throw new InternalError("Invalid root package.");
+      throw new Error(`Invalid root manifest at "${path.join(projectPath, "package.json")}": expected a package name.`);
+    }
+
+    if (typeof rootPackage.name !== "string" || !/^[a-z0-9][a-z0-9_-]*$/u.test(rootPackage.name)) {
+      throw new Error(
+        "The root package name must be an unscoped name using lowercase letters, numbers, hyphens, or underscores."
+      );
     }
 
     /* If the project isn't a valid monorepo, don't continue with creation. */
     if (!projectRootContents.has("apps") || !projectRootContents.has("packages")) {
-      throw new InternalError("This is not a monorepo.");
+      throw new Error(`Invalid monorepo at "${projectPath}": expected apps/ and packages/ directories.`);
     }
 
     /** The type of asset to create. */
@@ -71,91 +79,111 @@ const assetCreator = async (): Promise<void> => {
         validate: name =>
           createReadableZodError(
             z.safeParse(
-              z.string().min(3, "Must be at least 3 characters long.").lowercase("Must be all lowercase."),
+              z
+                .string()
+                .min(3, "Use at least 3 characters.")
+                .regex(
+                  /^[a-z0-9][a-z0-9_-]*$/u,
+                  "Start with a lowercase letter or number; use only lowercase letters, numbers, hyphens, or underscores."
+                ),
               name
             )
           )
       })
     );
 
-    /* Load all package's in monorepo. */
-    const projectContents = await deepReadDirectory(projectPath, ["node_modules"]);
-    const projectPackageConfigs = projectContents.filter((file: ReadonlyDirent) => file.name === "package.json");
+    const packageName = `@${rootPackage.name}/${assetName}`;
+    const clonedPath = path.join(projectPath, assetType === "app" ? "apps" : "packages", assetName);
 
-    /* Ensure a folder doesn't exist with the same name to prevent overlap. */
-    if (projectPackageConfigs.some(config => path.basename(config.parentPath) === assetName)) {
-      throw new InternalError("There is already an asset's folder with the provided name.");
+    await checkAssetConflicts(projectPath, assetName, packageName);
+
+    /* Validate the template before creating any files. */
+    const templatePath = path.join(projectPath, "packages", "config");
+    const templateManifestPath = path.join(templatePath, "package.json");
+    const templatePackage: unknown = JSON.parse(await readFile(templateManifestPath, "utf8"));
+    if (!isValidPackage(templatePackage) || typeof templatePackage.name !== "string" || !templatePackage.name) {
+      throw new Error(`Invalid template manifest at "${templateManifestPath}": expected a nonempty package name.`);
     }
-
-    /* Information about all packages. */
-    const projectPackageRawContents = await Promise.all(
-      projectPackageConfigs.map(async (file: ReadonlyDirent) => {
-        const fileRaw = await readFile(path.join(file.parentPath, file.name), "utf8");
-        return JSON.parse(fileRaw) as unknown;
-      })
-    );
-    const projectPackageContents = projectPackageRawContents.filter((json: unknown) => isValidPackage(json));
-
-    /* Ensure that there isn't already an asset with the configured name. */
-    // oxlint-disable-next-line typescript/prefer-readonly-parameter-types
-    if (projectPackageContents.some(pack => pack.name === `@${rootPackage.name}/${assetName}`)) {
-      throw new InternalError("An asset with the provided name already exists.");
+    const templateSourcePath = path.join(templatePath, "src");
+    const templateSource = await lstat(templateSourcePath);
+    if (!templateSource.isDirectory()) {
+      throw new Error(`Invalid template: "${templateSourcePath}" must be a directory.`);
     }
+    templatePackage.name = packageName;
+    delete templatePackage.dependencies;
+    delete templatePackage.exports;
 
-    /** The framework the user is using. */
+    /** The package manager used to run formatting. */
     const frameworkType = await createPrompt(async () => frameworkSelect("bun"));
 
     /** Whether or not a format should take place once finished. */
     const shouldFormat = await createPrompt(async () =>
-      confirm({ initialValue: true, message: "Would you like me to run the formatting framework after?" })
+      confirm({ initialValue: true, message: "Run the project formatter after creating the asset?" })
     );
 
     /** The tasks that need to complete for the asset to be created. */
     const assetTasks: Task[] = [
       {
         task: async (): Promise<void> => {
-          const clonedPath = `${projectPath}/${assetType === "app" ? "apps" : "packages"}/${assetName}`;
-          await cp(`${projectPath}/packages/config`, clonedPath, {
-            filter: file => path.basename(file) !== "node_modules",
-            recursive: true
-          });
-
-          const clonedPackageRaw = await readFile(`${clonedPath}/package.json`, "utf8");
-          const clonedPackage = JSON.parse(clonedPackageRaw) as unknown;
-
-          if (!isValidPackage(clonedPackage)) {
-            throw new InternalError("Invalid asset package.");
+          /* Creating the directory fails for any existing destination, including dangling symlinks. */
+          await mkdir(clonedPath);
+          try {
+            await cp(templatePath, clonedPath, {
+              errorOnExist: true,
+              filter: file => path.basename(file) !== "node_modules",
+              force: false,
+              recursive: true
+            });
+            // Reject copied symlinks before writing through them.
+            await Promise.all(
+              [path.join(clonedPath, "package.json"), path.join(clonedPath, "src", "index.ts")].map(async target => {
+                const targetInfo = await lstat(target).catch((error: unknown) => {
+                  if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+                    return;
+                  }
+                  throw error;
+                });
+                if (targetInfo && targetInfo.isSymbolicLink()) {
+                  throw new Error(`Invalid template: "${target}" must not be a symbolic link.`);
+                }
+              })
+            );
+            await writeFile(
+              path.join(clonedPath, "package.json"),
+              `${JSON.stringify(templatePackage, undefined, 2)}\n`,
+              "utf8"
+            );
+            await writeFile(path.join(clonedPath, "src", "index.ts"), "// TODO: Put asset code here!\n", "utf8");
+          } catch (error) {
+            await rm(clonedPath, { force: true, recursive: true });
+            throw error;
           }
-
-          clonedPackage.name = `@${rootPackage.name}/${assetName}`;
-
-          delete clonedPackage.dependencies;
-          delete clonedPackage.exports;
-
-          await writeFile(`${clonedPath}/package.json`, JSON.stringify(clonedPackage), "utf8");
-          await writeFile(`${clonedPath}/src/index.ts`, "// TODO: Put asset code here!", "utf8");
         },
-        title: "Clone configuration package template and configure."
+        title: "Creating asset from the configuration template."
       }
     ];
 
     if (shouldFormat) {
       assetTasks.push({
         task: async () => {
-          await execute(`${DEFAULT_COMMAND_PREFIXES[frameworkType]} run format`, { cwd: projectPath });
+          try {
+            await execute(`${DEFAULT_COMMAND_PREFIXES[frameworkType]} run format`, { cwd: projectPath });
+          } catch (error) {
+            throw new Error(
+              `Asset created at "${clonedPath}", but formatting failed. Run the project format command to retry.`,
+              { cause: error }
+            );
+          }
         },
-        title: "Running linting framework."
+        title: "Formatting project."
       });
     }
 
     await tasks(assetTasks);
 
-    outro(
-      `Successfully created new ${assetType} at '${projectPath}/${assetType === "app" ? "apps" : "packages"}/${assetName}'.`
-    );
+    outro(`Created ${assetType} "${packageName}" at "${clonedPath}".`);
   } catch (error) {
-    log.error(String(error));
-    log.error(createReadableError(error));
+    log.error(error instanceof Error ? error.message : createReadableError(error));
     process.exitCode = 1;
   }
 };

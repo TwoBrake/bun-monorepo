@@ -37,10 +37,10 @@ const initializer = async (): Promise<void> => {
     const authorName = await createPrompt(async () =>
       text({
         initialValue: flags.name ?? "",
-        message: "What is your name?",
+        message: "What name should be listed as the project author?",
         placeholder: "Lucas Stranks",
         validate: name =>
-          createReadableZodError(z.safeParse(z.string().min(3, "Must be at least 3 characters long."), name))
+          createReadableZodError(z.safeParse(z.string().min(3, "Use at least 3 characters."), name))
       })
     );
 
@@ -48,9 +48,9 @@ const initializer = async (): Promise<void> => {
     const authorEmail = await createPrompt(async () =>
       text({
         initialValue: flags.email ?? "",
-        message: "What is your email address?",
+        message: "What email address should be listed for the project author?",
         placeholder: "name@domain.com",
-        validate: email => createReadableZodError(z.safeParse(z.email("Not a valid email address."), email))
+        validate: email => createReadableZodError(z.safeParse(z.email("Enter a valid email address."), email))
       })
     );
 
@@ -58,16 +58,16 @@ const initializer = async (): Promise<void> => {
     const projectName = await createPrompt(async () =>
       text({
         initialValue: flags.projectName ?? "",
-        message: "What would you like to call your project?",
+        message: "What is your project name?",
         placeholder: "cool-project",
         validate: name =>
           createReadableZodError(
             z.safeParse(
               z
                 .string()
-                .min(3, "Must be at least 3 characters long.")
-                .lowercase("Must be all lowercase.")
-                .refine(value => !value.includes(" "), "Must not have any whitespace."),
+                .min(3, "Use at least 3 characters.")
+                .lowercase("Use lowercase characters.")
+                .refine(value => !value.includes(" "), "Do not include spaces."),
               name
             )
           )
@@ -79,14 +79,14 @@ const initializer = async (): Promise<void> => {
       path({
         directory: true,
         initialValue: flags.directory,
-        message: "Where do you want to create this project at?"
+        message: "Where should the project be created?"
       })
     );
 
     /* Ensure the target directory is empty. */
     const targetRaw = await readdir(targetDirectory);
     if (targetRaw.length > 0) {
-      throw new InternalError("The directory must be empty.");
+      throw new InternalError("Choose an empty directory to avoid overwriting existing files.");
     }
 
     /** The type of framework to use for installing dependencies. */
@@ -96,7 +96,7 @@ const initializer = async (): Promise<void> => {
     const shouldInstallDependencies = await createPrompt(async () =>
       confirm({
         initialValue: flags.installDependencies,
-        message: "Once the template is ready, would you like me to install my dependencies?"
+        message: "Install project dependencies after creating the project?"
       })
     );
 
@@ -111,12 +111,12 @@ const initializer = async (): Promise<void> => {
 
           clonedDirectory = dir;
         },
-        title: "Pulling most recent version from GitHub."
+        title: "Downloading the latest template from GitHub."
       },
       {
         task: async () => {
           if (clonedDirectory === undefined) {
-            throw new InternalError("Failed to clone.");
+            throw new InternalError("The template download did not return a project directory.");
           }
 
           /** The raw contents of the 'package.json' of the cloned project. */
@@ -125,7 +125,7 @@ const initializer = async (): Promise<void> => {
           /** The JSON contents of the project. */
           const clonedPackage = JSON.parse(clonedPackageContents) as unknown;
           if (!isValidPackage(clonedPackage)) {
-            throw new InternalError("Invalid package.");
+            throw new InternalError("The template root package.json must contain a package name.");
           }
 
           /* Assign default package configuration. */
@@ -169,7 +169,7 @@ const initializer = async (): Promise<void> => {
             ]
           });
         },
-        title: "Applying configured options to template."
+        title: "Applying project and author settings."
       }
     ];
 
@@ -186,25 +186,25 @@ const initializer = async (): Promise<void> => {
 
     /* Output overview of selected options. */
     log.info(
-      `Overview:\n\nProject Name: ${projectName}\nAuthor Name: ${authorName}\nAuthor Email: ${authorEmail}\nPath: ${targetDirectory}\nFramework: ${frameworkType}\nInstall Dependencies: ${shouldInstallDependencies ? "Yes" : "No"}`
+      `Project settings:\n\nProject Name: ${projectName}\nAuthor Name: ${authorName}\nAuthor Email: ${authorEmail}\nPath: ${targetDirectory}\nPackage Manager: ${frameworkType}\nInstall Dependencies: ${shouldInstallDependencies ? "Yes" : "No"}`
     );
 
     /* Warn interruptions may have unintended side-effects. */
     log.warn(
-      "Proceeding to the next step will start the installation process. Cancelling during it may cause unintended side-effects."
+      "The next step downloads and configures the project. Interrupting it may leave an incomplete project in the selected directory."
     );
 
     const shouldFinalize = await createPrompt(async () =>
-      confirm({ initialValue: flags.finalize, message: "Are you sure you want to finalize the installation?" })
+      confirm({ initialValue: flags.finalize, message: "Create the project with these settings?" })
     );
 
     if (!shouldFinalize) {
-      throw new ActionAbortedError("User cancelled.");
+      throw new ActionAbortedError("Project creation cancelled.");
     }
 
     await tasks(installationTasks);
 
-    outro(`Your project was successfully created at: ${clonedDirectory}`);
+    outro(`Project created at: ${clonedDirectory}`);
   } catch (error: unknown) {
     log.error(createReadableError(error));
     process.exitCode = 1;
