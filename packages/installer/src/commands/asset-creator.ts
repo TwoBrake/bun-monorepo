@@ -100,16 +100,20 @@ const assetCreator = async (): Promise<void> => {
     /* Validate the template before creating any files. */
     const templatePath = path.join(projectPath, "packages", "config");
     const templateManifestPath = path.join(templatePath, "package.json");
+
     const templatePackage: unknown = JSON.parse(await readFile(templateManifestPath, "utf8"));
     if (!isValidPackage(templatePackage) || typeof templatePackage.name !== "string" || !templatePackage.name) {
       throw new Error(`Invalid template manifest at "${templateManifestPath}": expected a nonempty package name.`);
     }
+
     const templateSourcePath = path.join(templatePath, "src");
     const templateSource = await lstat(templateSourcePath);
     if (!templateSource.isDirectory()) {
       throw new Error(`Invalid template: "${templateSourcePath}" must be a directory.`);
     }
+
     templatePackage.name = packageName;
+
     delete templatePackage.dependencies;
     delete templatePackage.exports;
 
@@ -134,13 +138,15 @@ const assetCreator = async (): Promise<void> => {
               force: false,
               recursive: true
             });
-            // Reject copied symlinks before writing through them.
+
+            /* Reject copied symlinks before writing through them. */
             await Promise.all(
               [path.join(clonedPath, "package.json"), path.join(clonedPath, "src", "index.ts")].map(async target => {
                 const targetInfo = await lstat(target).catch((error: unknown) => {
                   if (error instanceof Error && "code" in error && error.code === "ENOENT") {
                     return;
                   }
+
                   throw error;
                 });
                 if (targetInfo && targetInfo.isSymbolicLink()) {
@@ -148,11 +154,13 @@ const assetCreator = async (): Promise<void> => {
                 }
               })
             );
+
             await writeFile(
               path.join(clonedPath, "package.json"),
               `${JSON.stringify(templatePackage, undefined, 2)}\n`,
               "utf8"
             );
+
             await writeFile(path.join(clonedPath, "src", "index.ts"), "// TODO: Put asset code here!\n", "utf8");
           } catch (error) {
             await rm(clonedPath, { force: true, recursive: true });
