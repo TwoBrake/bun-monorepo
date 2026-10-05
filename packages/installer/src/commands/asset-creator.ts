@@ -115,7 +115,7 @@ const assetCreator = async (): Promise<void> => {
     if (shouldFormat) {
       assetTasks.push({
         task: async () => {
-          await execute(`${DEFAULT_COMMAND_PREFIXES[frameworkType]} run lint`, { cwd: projectPath });
+          await execute(`${DEFAULT_COMMAND_PREFIXES[frameworkType]} run format`, { cwd: projectPath });
         },
         title: "Running linting framework."
       });

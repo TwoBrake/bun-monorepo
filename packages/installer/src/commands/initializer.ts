@@ -17,7 +17,7 @@ import {
   replaceOccurrences
 } from "../lib";
 import { type Task, confirm, intro, log, outro, path, tasks, text } from "@clack/prompts";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 // oxlint-disable-next-line sort-imports
 import { ActionAbortedError, InternalError } from "@repo/utility/errors";
 import type { Possible } from "@repo/utility";
@@ -82,6 +82,12 @@ const initializer = async (): Promise<void> => {
         message: "Where do you want to create this project at?"
       })
     );
+
+    /* Ensure the target directory is empty. */
+    const targetRaw = await readdir(targetDirectory);
+    if (targetRaw.length > 0) {
+      throw new InternalError("The directory must be empty.");
+    }
 
     /** The type of framework to use for installing dependencies. */
     const frameworkType = await createPrompt(async () => frameworkSelect("bun"));
