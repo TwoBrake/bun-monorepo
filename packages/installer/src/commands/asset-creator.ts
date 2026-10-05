@@ -69,6 +69,8 @@ const assetCreator = async (): Promise<void> => {
       })
     );
 
+    // TODO: Ensure package doesn't already exist.
+
     /** The framework the user is using. */
     const frameworkType = await createPrompt(async () => frameworkSelect("bun"));
 
