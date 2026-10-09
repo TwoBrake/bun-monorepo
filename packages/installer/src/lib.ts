@@ -1,13 +1,19 @@
+// oxlint-disable max-lines -- Keep shared installer helpers in this module.
 // Resources
-import { ActionAbortedError } from "@repo/utility/errors";
+import { ActionAbortedError, InternalError } from "@repo/utility/errors";
 import type { Dirent } from "node:fs";
 import type { PackageJson as Package } from "type-fest";
 // oxlint-disable-next-line sort-imports
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { exec } from "node:child_process";
-import { isCancel } from "@clack/prompts";
+import installerPackage from "../package.json";
+// oxlint-disable-next-line sort-imports
+import { isCancel, select } from "@clack/prompts";
 import path from "node:path";
-import { promisify } from "node:util";
+// oxlint-disable-next-line sort-imports
+import { parseArgs, promisify } from "node:util";
+import type { Possible } from "@repo/utility";
+import type { ZodSafeParseResult } from "zod";
 import type rootPackage from "../../../package.json";
 
 /** The data required to replace a set of content in all files. */
@@ -26,6 +32,46 @@ export interface ReplaceOccurrenceQuery {
 /** Scripts that are configured in the root package. */
 export type RootPackageScript = keyof (typeof rootPackage)["scripts"];
 
+/** A command prefix. */
+export type CommandPrefix = keyof typeof DEFAULT_COMMAND_PREFIXES;
+
+export type ReadonlyDirent = Readonly<Dirent>;
+
+/** An optional set of command arguments that can be passed to the installer to input preset values. */
+export const COMMAND_ARGUMENTS = parseArgs({
+  allowPositionals: true,
+  options: {
+    directory: {
+      short: "d",
+      type: "string"
+    },
+    email: {
+      short: "e",
+      type: "string"
+    },
+    finalize: {
+      short: "y",
+      type: "boolean"
+    },
+    framework: {
+      short: "f",
+      type: "string"
+    },
+    installDependencies: {
+      short: "i",
+      type: "boolean"
+    },
+    name: {
+      short: "n",
+      type: "string"
+    },
+    projectName: {
+      short: "p",
+      type: "string"
+    }
+  }
+});
+
 /** The default values to apply to a new 'package.json'. */
 export const DEFAULT_PACKAGE: Partial<Package> = {
   version: "0.0.1"
@@ -35,25 +81,99 @@ export const DEFAULT_PACKAGE: Partial<Package> = {
 export const PACKAGE_NAME = "TwoBrake/bun-monorepo" as const;
 
 /** The default commands that can be used with the framework selection to install dependencies. */
-export const DEFAULT_INSTALL_COMMANDS = {
-  bun: "bun install",
-  npm: "npm install",
-  pnpm: "pnpm install"
+export const DEFAULT_COMMAND_PREFIXES = {
+  bun: "bun",
+  npm: "npm",
+  pnpm: "pnpm"
 } as const;
 
 /** The package scripts to remove during the installation process. */
 export const EXCLUDED_PACKAGE_SCRIPTS = new Set<RootPackageScript>(["installer:build", "installer:publish"]);
 
 /** The paths to ignore when pulling source from remote. */
-export const IGNORE_PATH_LIST: string[] = [
+export const CLONE_IGNORE_PATH_LIST = new Set<string>([
   "packages/installer",
   "packages/installer/**",
   "README.md",
+  "CONTRIBUTING.md",
+  "CODE_OF_CONTACT.md",
+  "SECURITY.md",
+  "LICENSE",
   ".github/images",
   ".github/images/**",
   ".github/workflows/publish-installer.yml",
   ".github/dependabot.yml"
-];
+]);
+
+/**
+ * A select allowing the user to select the framework they're using.
+ *
+ * @param defaultValue The default value to use.
+ *
+ * @returns The framework selection.
+ */
+export const frameworkSelect = async (defaultValue: CommandPrefix): ReturnType<typeof select<CommandPrefix>> =>
+  select<CommandPrefix>({
+    initialValue: defaultValue,
+    message: "What framework would you like to use for the project?",
+    options: [
+      { label: "Bun (Recommended)", value: "bun" },
+      { label: "NPM", value: "npm" },
+      { label: "PNPM", value: "pnpm" }
+    ]
+  });
+
+/**
+ * Constructs a title to be used in CLI introductions.
+ *
+ * @param page The custom sub-page title to use.
+ *
+ * @returns The constructed title.
+ */
+export const createTitle = (page?: string): string =>
+  `bun-monorepo (${installerPackage.version})${page === undefined ? "" : ` - ${page}`}`;
+
+/**
+ * Constructs a readable error from an error instance.
+ *
+ * @param error The error instance.
+ *
+ * @returns The readable error.
+ */
+export const createReadableError = (error: unknown): string => {
+  if (error instanceof ActionAbortedError) {
+    return "Installation was aborted.";
+  } else if (error instanceof InternalError) {
+    return error.message;
+  }
+
+  return "Something went wrong, please try again.";
+};
+
+// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
+export const createReadableZodError = (zodResult: ZodSafeParseResult<unknown>): Possible<string> =>
+  // oxlint-disable-next-line oxc/no-optional-chaining
+  zodResult.success ? undefined : (zodResult.error.issues[0]?.message ?? "Unknown error.");
+
+/**
+ * Gets a list of all contents nested deeply in a folder.
+ *
+ * @param cwd The directory.
+ * @param ignore Directory names to ignore.
+ *
+ * @returns A list of all the contents.
+ */
+export const deepReadDirectory = async (cwd: string, ignore: readonly string[] = []): Promise<Readonly<Dirent>[]> => {
+  const contents = await readdir(cwd, { withFileTypes: true });
+  const files = contents.filter((file: ReadonlyDirent) => !file.isDirectory());
+  const directories = contents.filter((file: ReadonlyDirent) => file.isDirectory() && !ignore.includes(file.name));
+
+  const nestedContents = await Promise.all(
+    directories.map(async (directory: ReadonlyDirent) => deepReadDirectory(path.join(cwd, directory.name), ignore))
+  );
+
+  return [...files, ...nestedContents.flat()];
+};
 
 /**
  * Replaces all of the occurrences of a query based on the provided extensions and CWD.
@@ -140,3 +260,59 @@ export const createPrompt = async <TPrompt>(
 /** The execution API wrapper that allows asynchronous usage. */
 // oxlint-disable-next-line typescript/strict-void-return
 export const execute = promisify(exec);
+
+/**
+ * Reads a workspace manifest, allowing incomplete assets without one.
+ *
+ * @param manifestPath The manifest location.
+ * @returns The parsed manifest, or undefined when absent.
+ */
+const readWorkspaceManifest = async (manifestPath: string): Promise<unknown> => {
+  const raw = await readFile(manifestPath, "utf8").catch((error: unknown) => {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+      return;
+    }
+    throw new Error(`Cannot read workspace manifest "${manifestPath}".`, { cause: error });
+  });
+  if (raw === undefined) {
+    return undefined;
+  }
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch (error) {
+    throw new Error(`Invalid JSON in workspace manifest "${manifestPath}".`, { cause: error });
+  }
+};
+
+/**
+ * Checks folder and package names across the template's workspace directories.
+ *
+ * @param projectPath The monorepo location.
+ * @param assetName The requested folder name.
+ * @param packageName The requested package name.
+ */
+export const checkAssetConflicts = async (projectPath: string, assetName: string, packageName: string): Promise<void> => {
+  await Promise.all(
+    ["apps", "packages"].map(async workspace => {
+      const workspacePath = path.join(projectPath, workspace);
+      const entries = await readdir(workspacePath, { withFileTypes: true });
+      await Promise.all(
+        entries.map(async (entry: Readonly<Dirent>) => {
+          const entryPath = path.join(workspacePath, entry.name);
+          if (entry.name === assetName) {
+            throw new Error(`Cannot create asset: "${entryPath}" already exists.`);
+          }
+          if (entry.isDirectory() || entry.isSymbolicLink()) {
+            const manifestPath = path.join(entryPath, "package.json");
+            const manifest = await readWorkspaceManifest(manifestPath);
+            if (isValidPackage(manifest) && manifest.name === packageName) {
+              throw new Error(
+                `Cannot create asset: package "${packageName}" is already declared in "${manifestPath}".`
+              );
+            }
+          }
+        })
+      );
+    })
+  );
+};

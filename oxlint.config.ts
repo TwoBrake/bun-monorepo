@@ -57,6 +57,7 @@ const configuration = defineConfig({
     "eslint/max-lines-per-function": "off",
     "eslint/max-statements": "off",
     "eslint/no-undefined": "off",
+    "eslint/no-warning-comments": "off",
     "eslint/one-var": "off",
     "eslint/require-await": "off",
     "no-magic-numbers": "off",
