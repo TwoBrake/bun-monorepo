@@ -20,3 +20,6 @@ export interface Package {
   name: string;
   version: string;
 }
+
+/** A possibly undefined value. */
+export type Possible<TType> = TType | undefined;

@@ -1,6 +1,6 @@
 {
   "name": "@twobrake/create-monorepo",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "The installer for an opinionated monorepo starter for TypeScript built on the Bun ecosystem.",
   "keywords": [
     "bun",
@@ -11,6 +11,10 @@
     "template",
     "typescript"
   ],
+  "homepage": "https://github.com/TwoBrake/bun-monorepo#readme",
+  "bugs": {
+    "url": "https://github.com/TwoBrake/bun-monorepo/issues"
+  },
   "license": "MIT",
   "author": {
     "name": "Lucas Stranks"
@@ -19,10 +23,6 @@
     "type": "git",
     "url": "git+https://github.com/TwoBrake/bun-monorepo.git",
     "directory": "packages/installer"
-  },
-  "homepage": "https://github.com/TwoBrake/bun-monorepo#readme",
-  "bugs": {
-    "url": "https://github.com/TwoBrake/bun-monorepo/issues"
   },
   "bin": {
     "create-monorepo": "dist/index.mjs"
@@ -35,7 +35,7 @@
     "access": "public"
   },
   "scripts": {
-    "test-install": "bun run src/index.ts",
+    "cli": "bun run src/index.ts",
     "build": "tsdown",
     "build:watch": "tsdown --watch",
     "release": "npm publish --access public",
